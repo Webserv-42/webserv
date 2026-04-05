@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:09 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/01 13:34:27 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/05 16:31:30 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@
 #include "HttpHandler.hpp"
 #include <vector>
 #include <iostream>
-
+ 
+//rama de prueba_alejo
 /*
     Gestion de red, crear sockets, hacer bind/ listen,
     manejar el event pool con poll().
