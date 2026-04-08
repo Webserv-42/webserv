@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigData.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:20 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/01 12:47:33 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/08 16:41:03 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,7 @@
     del .conf para que el server y el HttpHandler la usen.
 */
 
-#include <string>
-#include <vector>
-#include <map>
-
+#include "bookstore.hpp"
 // Contrato para las rutas (locations)
 struct LocationConfig {
     std::string path;                               // La ruta solicitda ej: "/images/"
