@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:59:47 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/01 13:13:39 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/08 15:05:18 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,7 @@
 #define HTTPHANDLER_HPP
 
 #include "ConfigData.hpp"
-#include <string>
-#include <iostream>
+#include "bookstore.hpp"
 
 /*
     Aquí recibimos la cadena de una peticion HTTP, parsearla, aplicar las reglas

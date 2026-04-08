@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:09 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/01 13:34:27 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/08 16:16:27 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,11 @@
 
 #include "ConfigData.hpp"
 #include "HttpHandler.hpp"
-#include <vector>
-#include <iostream>
-
+// #include "ServerConfig.hpp"
+#include "bookstore.hpp"
+#include "Client.hpp"
+ 
+//rama de prueba_alejo
 /*
     Gestion de red, crear sockets, hacer bind/ listen,
     manejar el event pool con poll().
@@ -37,7 +39,31 @@
         - Delegar proceso al HtppHandler pasandole la configuracion del servidor correspondiente
         - Cuando poll() indique que podemos escribir (POLLOUT), enviar la respuesta con send()
 */
-class Server {
+
+class Server 
+{
+private:
+    std::vector<ServerConfig> _configs;
+    HttpHandler _httpHandler;
+
+    std::vector<pollfd> _fds; //lista de todos los FDs (servidor + clientes)
+    std::map<int, Client> _clients; //guarda estado de cada cliente
+    std::map<int, ServerConfig*> _socketToConfig; //múltiples puertos múltiples servidores
+
+    void acceptClient(int serverFd); //crea cliente nuevo
+    void handleClient(int clientFd); //recv+ buffer
+    void removeClient(int fd); // limpia el buffer guardado
+
+public:
+    Server() {}
+    ~Server() {}
+
+    void init(const std::vector<ServerConfig>& configs); 
+    void initSockets(); //socket bind listen añade a _fds
+    void run(); // event loop → recorrer fds → accept o recv
+};
+
+/* class Server {
 private:
     std::vector<ServerConfig> _configs;
     HttpHandler _httpHandler;
@@ -59,6 +85,6 @@ public:
         
         std::cout << "[DEV 1] Respuesta recibida del módulo HTTP. Enviando al cliente..." << std::endl;
     }
-};
+}; */
 
 #endif

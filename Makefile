@@ -1,6 +1,8 @@
 
 NAME            = webserv
-SOURCES         =  src/main.cpp
+SOURCES         =  src/main.cpp \
+					src/Server.cpp \
+					src/Client.cpp
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
@@ -14,7 +16,7 @@ all: $(NAME)
 
 $(NAME): $(OBJECTS)
 	@echo "$(CYAN)Building $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME) >/dev/null 2>&1
+	@$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME)
 	@echo "$(GREEN)$(NAME) built successfully!$(RESET)"
 
 %.o: %.cpp
@@ -23,11 +25,11 @@ $(NAME): $(OBJECTS)
 
 clean:
 	@echo "$(RED)Cleaning object files...$(RESET)"
-	@$(RM) $(OBJECTS) >/dev/null 2>&1
+	@$(RM) $(OBJECTS)
 
 fclean: clean
 	@echo "$(RED)Removing $(NAME)...$(RESET)"
-	@$(RM) $(NAME) >/dev/null 2>&1
+	@$(RM) $(NAME)
 
 re: fclean all
 

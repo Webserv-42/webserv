@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:57 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/01 12:59:19 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/08 15:05:04 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 #define CONFIGPARSER_HPP
 
 #include "ConfigData.hpp"
-#include <string>
-#include <vector>
-#include <iostream>
+#include "bookstore.hpp"
 
 /*
     Leer el archivo .conf de texto, validar su sintaxis y traducirlo a los structs
