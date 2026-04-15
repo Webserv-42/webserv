@@ -8,6 +8,7 @@ SOURCES         =  src/main.cpp \
 					src/ConfigParser.cpp \
 					src/HttpHandler.cpp \
 					src/SessionManager.cpp
+					src/HttpRequest.cpp 
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
