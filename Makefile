@@ -2,11 +2,12 @@
 NAME            = webserv
 SOURCES         =  src/main.cpp \
 					src/Server.cpp \
-					src/Client.cpp
+					src/Client.cpp \
+					src/HttpRequest.cpp 
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
-CFLAGS          = -Wall -Wextra -Werror -std=c++98
+CFLAGS          = -Wall -Wextra -Werror -std=c++98 -Iincludes
 RM              = rm -rf
 
 GREEN           = \033[1;32m
