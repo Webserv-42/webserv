@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 13:29:17 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/14 16:17:06 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/15 14:07:03 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,14 @@ private:
 public:
     HttpRequest();
     ~HttpRequest();
+    std::string getMethod() const;
+    std::string getUri() const;
+    std::string getHttpVersion() const;
+    std::map<std::string, std::string> getHeaders() const;
+    std::string getBody() const;
+    
     void checkRequest();
-    void getMethod(const std::string method);
-    void getUri(const std::string uri);
-    void getHttpVersion(const std::string httpVersion);
-    void getHeaders(const std::map<std::string, std::string>  _headers);
-    void getBody(const std::string  _body);
+    void parse(const std::string& raw_data);
 };
 
 #endif
