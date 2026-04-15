@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/08 15:55:06 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/15 17:35:31 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ConfigParser.hpp"
-#include "../includes/Server.hpp"
+#include "ConfigParser.hpp"
+#include "Server.hpp"
+#include "HttpRequest.hpp"
 #include <iostream>
 #include <string>
 
@@ -57,7 +58,21 @@
 //     return 0;
 // }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
+     // ---- ZONA DE PRUEBAS DE HTTPREQUEST ----
+    std::cout << "--- INICIANDO TEST DE PARSE ---" << std::endl;
+    
+    HttpRequest testReq;
+    std::string mock_request = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    
+    // Llamamos a tu funcion
+    testReq.parse(mock_request);
+    
+    std::cout << "--- FIN DEL TEST ---" << std::endl;
+    
+    // Matamos el programa aqui para que no arranque el Server de momento
+    return 0; 
     std::string configFile = "conf/default.conf";
     
     if (argc == 2) {
