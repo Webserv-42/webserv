@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/15 17:35:31 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/16 15:52:15 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     std::cout << "--- INICIANDO TEST DE PARSE ---" << std::endl;
     
     HttpRequest testReq;
-    std::string mock_request = "GET /index.html HTTP/1.1\r\nHost: localhost\r\n\r\n";
+    std::string mock_request = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
     
     // Llamamos a tu funcion
     testReq.parse(mock_request);
