@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/16 15:52:15 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:25:12 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@
 //     return 0;
 // }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
     std::string configFile = "conf/default.conf";
     
@@ -77,7 +77,8 @@ int main(int argc, char **argv)
 
     Server webserv;
 
-    try {
+    try
+    {
         // 🔹 1. pasar configs
         webserv.init(parser.getServers());
 
@@ -87,10 +88,11 @@ int main(int argc, char **argv)
         // 🔥 3. ARRANCAR CORE
         webserv.run();
 
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         std::cerr << "Excepción fatal en el servidor: " << e.what() << std::endl;
         return 1;
     }
-
     return 0;
 }
