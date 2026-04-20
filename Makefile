@@ -2,7 +2,8 @@
 NAME            = webserv
 SOURCES         =  src/main.cpp \
 					src/Server.cpp \
-					src/Client.cpp
+					src/Client.cpp \
+					src/ConfigParser.cpp
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
