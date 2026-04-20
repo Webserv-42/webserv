@@ -5,6 +5,7 @@ SOURCES         =  src/main.cpp \
 					src/Client.cpp \
 					src/HttpRequest.cpp \
 					src/HttpHandler.cpp
+					src/ConfigParser.cpp
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
