@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/13 13:29:17 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/16 15:48:53 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/17 11:01:57 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,9 @@ private:
         PARSING_ERROR 
     } _state;
     /*
-        Fíjate en el size_t& pos con el &. 
-        ¿Por qué le paso pos por referencia? Porque parseRequestLine 
-        tiene que decirle a parseHeaders dónde se quedó para que 
-        pueda continuar leyendo desde allí. Si lo pasas sin &, 
-        la posición se pierde.
+        Uso el &, lo llamo por refencia para decirle a parseHeaders
+        donde se quedo para que pueda continuar leyendo donde se quedo
+        para que pueda continuar leyendo desde alli
     */
     void parseRequestLine(const std::string& raw_data, size_t& pos);
     void parseHeaders(const std::string& raw_data, size_t& pos);
