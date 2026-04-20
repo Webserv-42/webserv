@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 13:09:23 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/27 12:21:05 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:24:08 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,4 +361,39 @@ std::string HttpHandler::generateDirectoryListing(const std::string& physicalPat
              << htmlBody;
 
     return response.str();
+#include "../includes/HttpHandler.hpp"
+
+const LocationConfig *HttpHandler::findLocation(const std::string &uri, const ServerConfig &serverConf)
+{
+	const LocationConfig *bestMatch = NULL;
+	size_t longestMatch = 0;
+	for(size_t i = 0; i < serverConf.locations.size(); i++)
+	{
+		if(uri.find(serverConf.locations[i].path) == 0)
+		{
+			size_t currentLength = serverConf.locations[i].path.length();
+			if(currentLength > longestMatch)
+			{
+				longestMatch = currentLength;
+				bestMatch = &serverConf.locations[i];
+			}
+		}
+	}
+	return bestMatch;
+}
+
+std::string HttpHandler::getStaticFileContent(const std::string &uri, const LocationConfig &location)
+{
+	std::string	fullPath = location.root + uri;
+	if(fullPath[fullPath.length() - 1] == '/')
+	{
+		fullPath = fullPath + location.index;
+	}
+	std::ifstream file(fullPath.c_str());
+	if(!file)
+		return "";
+	std::ostringstream buffer;
+	buffer << file.rdbuf();
+	file.close();
+	return buffer.str();
 }

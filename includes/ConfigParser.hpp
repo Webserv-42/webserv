@@ -16,18 +16,6 @@
 #include "ConfigData.hpp"
 #include "bookstore.hpp"
 
-/*
-	ConfigParser — State machine to parse an nginx-style .conf file.
-	
-	3 possible states:
-	  GLOBAL   → outside any block, waiting for "server {"
-	  SERVER   → inside a server { } block, reading server directives
-	  LOCATION → inside a location { } block, reading route directives
-	
-	Each "{" goes one level deeper, each "}" goes back up.
-*/
-
-// The 3 states of the parser's state machine
 enum ParseState {
 	STATE_GLOBAL,		// Outside any block
 	STATE_SERVER,		// Inside a server { } block
@@ -37,14 +25,8 @@ enum ParseState {
 class ConfigParser {
 private:
 	std::vector<ServerConfig> _servers;
-
-	// === Parsing helpers ===
-	// Removes spaces/tabs at the beginning and end of a string
 	std::string trim(const std::string& str);
-
-	// Splits a line into words (tokens) separated by spaces
 	std::vector<std::string> tokenize(const std::string& line);
-
 	// Processes a directive inside a server block (listen, server_name, etc.)
 	bool parseServerDirective(const std::vector<std::string>& tokens,
 								ServerConfig& server);

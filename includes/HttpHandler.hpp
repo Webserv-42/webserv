@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:59:47 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:22:39 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:23:46 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,9 @@ class HttpHandler
         const LocationConfig* matchLocation(const std::string& uri, const ServerConfig& serverConf);
         std::string buildErrorResponse(int statusCode);
         std::string generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri);
+	private:
+		const LocationConfig *findLocation(const std::string &uri, const ServerConfig &serverConf);
+		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
     public:
         HttpHandler();
         ~HttpHandler();
