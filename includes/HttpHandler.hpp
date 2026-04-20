@@ -18,6 +18,9 @@
 
 class HttpHandler
 {
+	private:
+		const LocationConfig *findLocation(const std::string &uri, const ServerConfig &serverConf);
+		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
     public:
         HttpHandler() {}
         ~HttpHandler() {}
