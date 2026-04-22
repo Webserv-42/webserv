@@ -60,19 +60,6 @@
 
 int main(int argc, char **argv) 
 {
-     // ---- ZONA DE PRUEBAS DE HTTPREQUEST ----
-    std::cout << "--- INICIANDO TEST DE PARSE ---" << std::endl;
-    
-    HttpRequest testReq;
-    std::string mock_request = "POST /upload HTTP/1.1\r\nHost: localhost\r\nContent-Length: 11\r\n\r\nHello World";
-    
-    // Llamamos a tu funcion
-    testReq.parse(mock_request);
-    
-    std::cout << "--- FIN DEL TEST ---" << std::endl;
-    
-    // Matamos el programa aqui para que no arranque el Server de momento
-    return 0; 
     std::string configFile = "conf/default.conf";
     
     if (argc == 2) {
