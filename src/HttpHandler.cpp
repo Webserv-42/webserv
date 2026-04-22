@@ -1,0 +1,203 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpHandler.cpp                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/20 13:09:23 by gafreire          #+#    #+#             */
+/*   Updated: 2026/04/22 15:16:38 by gafreire         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "HttpHandler.hpp"
+
+// Constructores y Destructores vacíos
+HttpHandler::HttpHandler() 
+{
+    
+}
+HttpHandler::~HttpHandler() 
+{
+    
+}
+
+/*
+    getMimeType:
+        funcion para que detecte el tipo de mime css,jpg...
+*/
+
+std::string HttpHandler::getMimeType(const std::string& filePath) 
+{
+    size_t pos;
+    std::string ext;
+    
+    pos = filePath.find_last_of('.');
+    if (pos == std::string::npos) 
+        return ("text/plain");    
+    ext = filePath.substr(pos);
+    if (ext == ".html" || ext == ".htm") 
+        return ("text/html");
+    if (ext == ".css") 
+        return ("text/css");
+    if (ext == ".js") 
+        return ("application/javascript");
+    if (ext == ".jpg" || ext == ".jpeg") 
+        return ("image/jpeg");
+    if (ext == ".png") 
+        return ("image/png");
+    if (ext == ".gif") 
+        return ("image/gif");
+    if (ext == ".ico") 
+        return ("image/x-icon");
+    return ("text/plain");
+}
+
+/*
+    handleRequest:
+        1. Buscamos el mejor bloque Location para la URI que nos han pedido
+        - NGINX concatena el Root al URI completo (ej: root "/var/www" + "/images/gato.jpg")
+        - Pero le quitamos los dobles '/' por si acaso se solapan.
+        
+*/
+std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf) 
+{
+    (void)serverConf;
+    std::string method;
+    std::string uri;
+        
+    method = req.getMethod();
+    uri = req.getUri();
+    std::cout << "[HTTP HANDLER] Procesando petición: " << method << " " << uri << std::endl;
+    
+    if (method == "GET") 
+    {
+        std::string filePath;
+        const LocationConfig* loc = matchLocation(uri, serverConf);
+        
+        if (loc != NULL) 
+        {
+            if (!loc->allowedMethods.empty()) 
+            {
+                bool isAllowed = false;
+                for (size_t i = 0; i < loc->allowedMethods.size(); i++) 
+                {
+                    if (loc->allowedMethods[i] == method) 
+                    {
+                        isAllowed = true;
+                        break;
+                    }
+                }
+                    return (buildErrorResponse(405));
+            }
+            filePath = loc->root + uri;
+            if (uri.length() > 0 && uri[uri.length() - 1] == '/') 
+            {
+                if (loc->index != "")
+                    filePath += loc->index; 
+            }
+        } 
+        else 
+        {
+            filePath = "www" + uri;
+            if (uri == "/")
+                filePath = "www/index.html";
+        }
+        std::ifstream file(filePath.c_str());
+        if (!file.is_open()) 
+            return (buildErrorResponse(404));
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        std::string content = buffer.str();        
+        std::string contentType = getMimeType(filePath);    
+        std::stringstream response;
+        response << "HTTP/1.1 200 OK\r\n"
+                 << "Content-Type: " << contentType << "\r\n"
+                 << "Content-Length: " << content.length() << "\r\n"
+                 << "\r\n"
+                 << content;
+        return (response.str());
+    }
+    return (buildErrorResponse(405));
+}
+
+/*
+    matchLocation:
+        Recorremos todos los "Location" del servidor
+        Si lo que pide el usuario empieza por locPath (ej: pide /images/gato.jpg y locPath es /images/)
+        Nos devolverá la configuración adecuada o NULL si ninguna coincide
+*/
+const LocationConfig* HttpHandler::matchLocation(const std::string& uri, const ServerConfig& serverConf)
+{
+    const LocationConfig* bestMatch;
+    size_t longestMatch;
+    
+    bestMatch = NULL;
+    longestMatch = 0;
+
+    for (size_t i = 0; i < serverConf.locations.size(); ++i) 
+    {
+        std::string locPath = serverConf.locations[i].path;
+        if (uri.find(locPath) == 0) 
+        {
+            if (locPath.length() >= longestMatch) 
+            {
+                longestMatch = locPath.length();
+                bestMatch = &serverConf.locations[i];
+            }
+        }
+    }
+    return (bestMatch);
+}
+
+/*
+    buildErrorResponse:
+        1. Escogemos el mensaje según tu código
+        2. Montamos el esqueleto HTML
+        3. Montamos la respuesta HTTP final con el header Content-Type correcto!
+*/
+std::string HttpHandler::buildErrorResponse(int statusCode) 
+{
+    std::string statusText;
+    std::string message;
+
+    if (statusCode == 404) 
+    {
+        statusText = "404 Not Found";
+        message = "Oops! El archivo que buscas no ha sido encontrado en el servidor.";
+    } 
+    else if (statusCode == 405) 
+    {
+        statusText = "405 Method Not Allowed";
+        message = "El metodo HTTP utilizado no esta permitido en esta ruta.";
+    } 
+    else 
+    {
+        statusText = "500 Internal Server Error";
+        message = "Un error inesperado desato el caos dentro del servidor.";
+        statusCode = 500;
+    }
+
+    // mover este html a un .html!!!!!
+    std::stringstream html;
+    html << "<!DOCTYPE html>\n<html>\n"
+         << "<head><title>" << statusText << "</title></head>\n"
+         << "<body style=\"font-family: Arial, sans-serif; text-align: center; margin-top: 10%; background-color: #f4f4f4;\">\n"
+         << "   <h1 style=\"font-size: 5rem; color: #ff4a4a; margin-bottom: 0;\">" << statusCode << "</h1>\n"
+         << "   <h2 style=\"color: #333;\">" << statusText.substr(4) << "</h2>\n" // Cortamos los 3 números iniciales
+         << "   <p style=\"color: #666; margin-bottom: 30px;\">" << message << "</p>\n"
+         << "   <hr style=\"width: 50%;\">\n"
+         << "   <p style=\"color: #aaa; font-size: 0.8rem;\">Webserv / Proyecto 42</p>\n"
+         << "</body>\n</html>";
+
+    std::string htmlBody = html.str();
+
+    std::stringstream response;
+    response << "HTTP/1.1 " << statusText << "\r\n"
+             << "Content-Type: text/html\r\n"
+             << "Content-Length: " << htmlBody.length() << "\r\n"
+             << "\r\n"
+             << htmlBody;
+
+    return (response.str());
+}

@@ -3,7 +3,8 @@ NAME            = webserv
 SOURCES         =  src/main.cpp \
 					src/Server.cpp \
 					src/Client.cpp \
-					src/HttpRequest.cpp 
+					src/HttpRequest.cpp \
+					src/HttpHandler.cpp
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
