@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:27:34 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:31:24 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void Server::acceptClient(int serverFd)
 	client.fd = client_fd;
 	client.serverFd = serverFd; 	
 	_clients[client_fd] = client;
-	
+    client.config = _socketToConfig[serverFd]; // <--- NUEVO: Le decimos qué servidor usó para conectarse
 	std::cout << "[CORE] Nuevo cliente conectado: " << client_fd - 3 << std::endl;
 }
 
@@ -247,6 +247,58 @@ void Server::removeClient(int fd)
 	std::cerr << "Error: No sockets could be created. Exiting." << std::endl;
 	exit(1);
     }
+}
+
+/*
+    handleClient:
+        1. Buscamos el final de la cabecera HTTP (\r\n\r\n)
+        2. Aquí es donde parseamos (por ahora de forma básica)
+        3. Llamamos a tu HttpHandler
+        4. Enviamos la respuesta al cliente
+        5. ¡Importante! Cerramos al cliente después de responder (comportamiento HTTP básico)
+*/
+void Server::handleClient(int clientFd)
+{
+    char buffer[1024];
+    int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
+
+    if (bytes <= 0) 
+    {
+        removeClient(clientFd);
+        return;
+    }
+    _clients[clientFd].buffer.append(buffer, bytes);
+    std::string& client_buffer = _clients[clientFd].buffer;
+    if (client_buffer.find("\r\n\r\n") != std::string::npos) 
+    {
+        std::cout << "[SERVER] Peticion completa recibida del fd " << clientFd << std::endl;
+        HttpRequest req;
+        req.parse(client_buffer);
+        std::string response = _httpHandler.handleRequest(req, *(_clients[clientFd].config));
+        int sent = send(clientFd, response.c_str(), response.length(), 0);
+        if (sent > 0)
+            std::cout << "[SERVER] Respuesta enviada al cliente " << clientFd << std::endl;
+        removeClient(clientFd);
+    }
+}
+
+void Server::removeClient(int fd)
+{
+    // cerrar socket
+    close(fd);
+
+    // borrar del mapa de clientes
+    _clients.erase(fd);
+
+    // eliminar de la lista de poll
+    for (size_t i = 0; i < _fds.size(); i++) {
+        if (_fds[i].fd == fd) {
+            _fds.erase(_fds.begin() + i);
+            break;
+        }
+    }
+
+    std::cout << "[CORE] Cliente eliminado: " << fd << std::endl;
 }
 
 void Server::init(const std::vector<ServerConfig>& configs)
