@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:57 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/08 15:05:04 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/20 14:02:35 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,11 @@ public:
         ServerConfig dummy;
         dummy.port = 8080;
         dummy.host = "127.0.0.1";
+         LocationConfig locDummy;
+        locDummy.path = "/";
+        locDummy.root = "www";             // Carpeta real física
+        locDummy.index = "index.html";     // Archivo primario
+        dummy.locations.push_back(locDummy);
         _servers.push_back(dummy);
         return true;
     }
