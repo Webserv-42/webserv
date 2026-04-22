@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/08 17:02:04 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/22 15:28:53 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
 #include "../includes/ConfigData.hpp"
+#include "../includes/HttpRequest.hpp"
 
 void Server::acceptClient(int serverFd)
 {
@@ -19,7 +20,6 @@ void Server::acceptClient(int serverFd)
     if (client_fd < 0)
         return;
 
-    // non-blocking
     fcntl(client_fd, F_SETFL, O_NONBLOCK);
 
     pollfd pfd;
@@ -32,6 +32,7 @@ void Server::acceptClient(int serverFd)
     Client client;
     client.fd = client_fd;
     client.buffer = "";
+    client.config = _socketToConfig[serverFd]; // <--- NUEVO: Le decimos qué servidor usó para conectarse
 
     _clients[client_fd] = client;
 
@@ -112,19 +113,37 @@ void Server::initSockets()
     }
 }
 
+/*
+    handleClient:
+        1. Buscamos el final de la cabecera HTTP (\r\n\r\n)
+        2. Aquí es donde parseamos (por ahora de forma básica)
+        3. Llamamos a tu HttpHandler
+        4. Enviamos la respuesta al cliente
+        5. ¡Importante! Cerramos al cliente después de responder (comportamiento HTTP básico)
+*/
 void Server::handleClient(int clientFd)
 {
     char buffer[1024];
     int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 
-    if (bytes <= 0) {
+    if (bytes <= 0) 
+    {
         removeClient(clientFd);
         return;
     }
-
     _clients[clientFd].buffer.append(buffer, bytes);
-
-    std::cout << _clients[clientFd].buffer << std::endl;
+    std::string& client_buffer = _clients[clientFd].buffer;
+    if (client_buffer.find("\r\n\r\n") != std::string::npos) 
+    {
+        std::cout << "[SERVER] Peticion completa recibida del fd " << clientFd << std::endl;
+        HttpRequest req;
+        req.parse(client_buffer);
+        std::string response = _httpHandler.handleRequest(req, *(_clients[clientFd].config));
+        int sent = send(clientFd, response.c_str(), response.length(), 0);
+        if (sent > 0)
+            std::cout << "[SERVER] Respuesta enviada al cliente " << clientFd << std::endl;
+        removeClient(clientFd);
+    }
 }
 
 void Server::removeClient(int fd)
