@@ -4,7 +4,8 @@ SOURCES         =  src/main.cpp \
 					src/Server.cpp \
 					src/Client.cpp \
 					src/ConfigParser.cpp \
-					src/HttpHandler.cpp
+					src/HttpHandler.cpp \
+					src/SessionManager.cpp
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
