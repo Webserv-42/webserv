@@ -397,3 +397,22 @@ std::string HttpHandler::getStaticFileContent(const std::string &uri, const Loca
 	file.close();
 	return buffer.str();
 }
+
+bool HttpHandler::saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location)
+{
+	std::string fullPath = location.root + "/" + filename;
+	std::ofstream outfile(fullPath.c_str(), std::ios::binary);
+	if(!outfile.is_open())
+		return false;
+	outfile << fileContent;
+	outfile.close();
+	return true;
+}
+
+bool HttpHandler::deleteFile(const std::string &uri, const LocationConfig &location)
+{
+	std::string fullPath = location.root + uri;
+	if(remove(fullPath.c_str()) == 0)
+		return true;
+	return false;
+}

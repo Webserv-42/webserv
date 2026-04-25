@@ -39,6 +39,8 @@ class HttpHandler
 	private:
 		const LocationConfig *findLocation(const std::string &uri, const ServerConfig &serverConf);
 		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
+		bool saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location);
+		bool deleteFile(const std::string &uri, const LocationConfig &location);
     public:
         HttpHandler();
         ~HttpHandler();
