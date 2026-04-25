@@ -23,6 +23,7 @@ class HttpHandler
 		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
 		bool saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location);
 		bool deleteFile(const std::string &uri, const LocationConfig &location);
+		std::string getErrorPageContent(int errorCode, const LocationConfig& location);
     public:
         HttpHandler() {}
         ~HttpHandler() {}

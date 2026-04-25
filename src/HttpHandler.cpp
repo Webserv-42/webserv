@@ -53,3 +53,19 @@ bool HttpHandler::deleteFile(const std::string &uri, const LocationConfig &locat
 		return true;
 	return false;
 }
+
+std::string HttpHandler::getErrorPageContent(int errorCode, const LocationConfig& location)
+{
+	std::map<int, std::string>::const_iterator it = location.errorPages.find(errorCode);
+	if(it == location.errorPages.end())
+		return "";
+	std::string fullPath = location.root + it->second;
+	std::ifstream file(fullPath.c_str());
+	if(!file)
+		return "";
+	std::ostringstream buffer;
+	buffer << file.rdbuf();
+	file.close();
+	return buffer.str();
+
+}
