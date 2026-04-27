@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigData.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:20 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/08 16:41:03 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/23 11:13:11 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ struct LocationConfig {
     std::map<int, std::string> errorPages;          // Páginas de error personalizadas 404 -> "/404.html"
     std::string cgiExtension;                       // Extensión que dispara el CGI ej: ".php"
     std::string cgiPath;                            // Ruta al binario del CGI ej: "/usr/bin/php-cgi"
+    bool upload_enable;                             // ¿Se permite guardar archivos desde POST?
+    std::string upload_store;                       // "www/uploads" -> Ruta física donde se irán volcando
 };
 
 // Contrato para el servidor virtual
