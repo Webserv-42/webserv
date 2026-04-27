@@ -6,7 +6,7 @@
 /*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:00:55 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/08 15:32:04 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/23 18:35:01 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,6 @@
 # include <arpa/inet.h>
 # include <poll.h>
 # include <dirent.h>
+# include <ctime>
 
 #endif
