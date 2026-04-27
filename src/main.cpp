@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:25:12 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:27:47 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #include "HttpRequest.hpp"
 #include <iostream>
 #include <string>
-
 /*
     Aqui recibimos argumentos, isntanciamos los modulos principales y conectarlos.
     No debe tener logica de red ni de parseo directa
@@ -60,6 +59,7 @@
 
 int main(int argc, char **argv)
 {
+    signal(SIGPIPE, SIG_IGN); // En caso de que un cliente cirre la conexion mientras el servidor esta enviando datos, el proceso muere.
     std::string configFile = "conf/default.conf";
     
     if (argc == 2) {

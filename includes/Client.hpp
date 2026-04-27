@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/22 15:21:34 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:28:10 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,33 @@
 #define CLIENT_HPP
 
 #include "bookstore.hpp"
-#include "ConfigData.hpp"
-class Client 
+
+enum ClientState
 {
-    public:
-        int                 fd;
-        std::string         buffer;
-        const ServerConfig* config;
-    
-        Client() : fd(-1), buffer(""), config(NULL) {}
-        Client(int fd) : fd(fd), buffer(""), config(NULL) {}
-        ~Client() {}
+    READING_HEADERS,
+    READING_BODY,
+    PROCESSING,
+    SENDING,
+    DONE    
+};
+
+class Client
+{
+public:
+    int         fd;		// File descriptor del cliente
+    int		serverFd;	// que servidor acepto la conexión
+    std::string buffer;		// Acumula lo que llega por recv
+    std::string response;	// La respuesta construida
+    size_t	bytesSend;	// Tiempo que lleva enviando datos
+    size_t	ContLength;	// Header Content-Lenght
+    ClientState	state;		// Estados para el HTTP
+    HttpRequest	request;	// Variable para el request (GABRIEL).
+    time_t      lastActivity;
+
+    Client();
+    Client(int fd);
+
+    ~Client();
 };
 
 #endif
