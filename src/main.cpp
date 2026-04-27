@@ -6,7 +6,7 @@
 /*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/16 18:41:39 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/23 18:27:35 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "../includes/Server.hpp"
 #include <iostream>
 #include <string>
-
 /*
     Aqui recibimos argumentos, isntanciamos los modulos principales y conectarlos.
     No debe tener logica de red ni de parseo directa
@@ -59,6 +58,7 @@
 
 int main(int argc, char **argv)
 {
+    signal(SIGPIPE, SIG_IGN); // En caso de que un cliente cirre la conexion mientras el servidor esta enviando datos, el proceso muere.
     std::string configFile = "conf/default.conf";
     
     if (argc == 2) {

@@ -6,7 +6,7 @@
 /*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:09 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/08 16:16:27 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/23 18:52:42 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,13 +39,14 @@
         - Delegar proceso al HtppHandler pasandole la configuracion del servidor correspondiente
         - Cuando poll() indique que podemos escribir (POLLOUT), enviar la respuesta con send()
 */
-
 class Server 
 {
 private:
     std::vector<ServerConfig> _configs;
     HttpHandler _httpHandler;
+    static volatile sig_atomic_t _stop;
 
+    
     std::vector<pollfd> _fds; //lista de todos los FDs (servidor + clientes)
     std::map<int, Client> _clients; //guarda estado de cada cliente
     std::map<int, ServerConfig*> _socketToConfig; //múltiples puertos múltiples servidores
@@ -53,6 +54,9 @@ private:
     void acceptClient(int serverFd); //crea cliente nuevo
     void handleClient(int clientFd); //recv+ buffer
     void removeClient(int fd); // limpia el buffer guardado
+    void ReadFromClient(Client& c);
+    void ProcessRequest(Client& c);
+    void sendResponse(Client& c);
 
 public:
     Server() {}
@@ -61,30 +65,9 @@ public:
     void init(const std::vector<ServerConfig>& configs); 
     void initSockets(); //socket bind listen añade a _fds
     void run(); // event loop → recorrer fds → accept o recv
+    void shutdown();
+    static void handleSigint(int);
+    void checkTimeouts();
 };
-
-/* class Server {
-private:
-    std::vector<ServerConfig> _configs;
-    HttpHandler _httpHandler;
-
-public:
-    Server() {}
-    ~Server() {}
-
-    void init(const std::vector<ServerConfig>& configs) {
-        _configs = configs;
-        std::cout << "[DEV 1] Inicializando sockets para " << _configs.size() << " servidores..." << std::endl;
-    }
-    
-    void run() {
-        std::cout << "[DEV 1] Iniciando loop de eventos (poll)... Presiona Ctrl+C para salir." << std::endl;
-        std::string mockRequest = "GET / HTTP/1.1\r\nHost: localhost\r\n\r\n";
-        
-        std::string response = _httpHandler.handleRequest(mockRequest, _configs[0]);
-        
-        std::cout << "[DEV 1] Respuesta recibida del módulo HTTP. Enviando al cliente..." << std::endl;
-    }
-}; */
 
 #endif
