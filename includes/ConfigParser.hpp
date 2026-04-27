@@ -16,38 +16,37 @@
 #include "ConfigData.hpp"
 #include "bookstore.hpp"
 
-/*
-    Leer el archivo .conf de texto, validar su sintaxis y traducirlo a los structs
-    de ConfigData
+enum ParseState {
+	STATE_GLOBAL,		// Outside any block
+	STATE_SERVER,		// Inside a server { } block
+	STATE_LOCATION		// Inside a location { } block (nested in server)
+};
 
-    Aqui trabaja " "
-*/
-
-/*
-    class ConfigParser:
-        - Se lee el archivo .conf y llena _servers
-        - los datos del serv y port son una plantilla MODIFICAR!!
-*/
 class ConfigParser {
 private:
-    std::vector<ServerConfig> _servers;
+	std::vector<ServerConfig> _servers;
+	std::string trim(const std::string& str);
+	std::vector<std::string> tokenize(const std::string& line);
+	// Processes a directive inside a server block (listen, server_name, etc.)
+	bool parseServerDirective(const std::vector<std::string>& tokens,
+								ServerConfig& server);
+
+	// Processes a directive inside a location block (root, index, etc.)
+	bool parseLocationDirective(const std::vector<std::string>& tokens,
+								LocationConfig& location);
+
+	// Validates that a ServerConfig has the minimum required fields (port, etc.)
+	bool validateServer(const ServerConfig& server);
 
 public:
-    ConfigParser() {}
-    ~ConfigParser() {}
+	ConfigParser();
+	~ConfigParser();
 
-    bool parse(const std::string& filename) {
-        std::cout << "[DEV 2] Parseando archivo de configuracion: " << filename << std::endl;
-        ServerConfig dummy;
-        dummy.port = 8080;
-        dummy.host = "127.0.0.1";
-        _servers.push_back(dummy);
-        return true;
-    }
+	// Reads and parses the config file, fills _servers
+	bool parse(const std::string& filename);
 
-    const std::vector<ServerConfig>& getServers() const {
-        return _servers;
-    }
+	// Getter to retrieve the parsed servers
+	const std::vector<ServerConfig>& getServers() const;
 };
 
 #endif

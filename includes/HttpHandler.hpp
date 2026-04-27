@@ -16,31 +16,24 @@
 #include "ConfigData.hpp"
 #include "bookstore.hpp"
 
-/*
-    Aquí recibimos la cadena de una peticion HTTP, parsearla, aplicar las reglas
-    de ruteo (ServerConfig), ejecutar CGI si es necesario mediante fork/execve
-    y construir el string de respuesta HTTP final.
-    
-    Aquí trabaja " "
-*/
-/*
-    class HttpHandler:
-        - Aqui tenemos que implementar el parseo del rawRequest, verificar
-            métodos, comprobar archivos estáticos o ejecutar CGI segun la
-            serverConf.
-*/
 class HttpHandler
 {
+	private:
+		const LocationConfig *findLocation(const std::string &uri, const ServerConfig &serverConf);
+		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
+		bool saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location);
+		bool deleteFile(const std::string &uri, const LocationConfig &location);
+		std::string getErrorPageContent(int errorCode, const LocationConfig& location);
     public:
         HttpHandler() {}
         ~HttpHandler() {}
-        
+
         std::string handleRequest(const std::string& rawRequest, const ServerConfig& serverConf) {
             (void)rawRequest;
             (void)serverConf;
-            
-            std::cout << "[DEV 3] Procesando peticion HTTP y generando respuesta..." << std::endl;
-            
+
+            std::cout << "[DEV 3] Processing HTTP request and generating response..." << std::endl;
+
 
             return "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello Webserv";
         }
