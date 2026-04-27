@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:31:24 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:32:02 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -251,11 +251,19 @@ void Server::removeClient(int fd)
 
 /*
     handleClient:
-        1. Buscamos el final de la cabecera HTTP (\r\n\r\n)
-        2. Aquí es donde parseamos (por ahora de forma básica)
-        3. Llamamos a tu HttpHandler
+        1. Calculamos dónde empiezan realmente los datos del fichero (Body)
+            - Sumando esos 4 bytes invisibles del salto de línea de HTTP.
+        2. Por defecto, asumimos que no hay cuerpo (0 bytes).
+            - Buscamos si existe la etiqueta de longitud.
+            - Solo la damos por válida si la encuentra ANTES de terminar los headers.
+            - Extraemos el número "recortando" el texto. 
+            - Sumamos 16 porque la palabra "Content-Length: " tiene 16 letras exactas.
+            - atol() convierte "5000" (texto) a 5000 (número grande).
+        3. Comprobamos la longitud real de lo que tenemos vs lo que debería ser
+
         4. Enviamos la respuesta al cliente
-        5. ¡Importante! Cerramos al cliente después de responder (comportamiento HTTP básico)
+        5. Cerramos al cliente después de responder (comportamiento HTTP básico)
+        
 */
 void Server::handleClient(int clientFd)
 {
@@ -269,13 +277,26 @@ void Server::handleClient(int clientFd)
     }
     _clients[clientFd].buffer.append(buffer, bytes);
     std::string& client_buffer = _clients[clientFd].buffer;
-    if (client_buffer.find("\r\n\r\n") != std::string::npos) 
+   size_t pos_headers_end = client_buffer.find("\r\n\r\n");
+    if (pos_headers_end != std::string::npos) 
     {
+        size_t total_header_bytes = pos_headers_end + 4;
+        long content_length = 0; 
+        size_t pos_cl = client_buffer.find("Content-Length: ");
+        if (pos_cl != std::string::npos && pos_cl < pos_headers_end) 
+        {
+            
+            size_t pos_end_line = client_buffer.find("\r\n", pos_cl);
+            std::string cl_str = client_buffer.substr(pos_cl + 16, pos_end_line - (pos_cl + 16));
+            content_length = std::atol(cl_str.c_str());
+        }
+        if (client_buffer.length() < (total_header_bytes + content_length)) 
+            return;
         std::cout << "[SERVER] Peticion completa recibida del fd " << clientFd << std::endl;
         HttpRequest req;
-        req.parse(client_buffer);
+        req.parse(client_buffer);      
         std::string response = _httpHandler.handleRequest(req, *(_clients[clientFd].config));
-        int sent = send(clientFd, response.c_str(), response.length(), 0);
+        int sent = send(clientFd, response.c_str(), response.length(), 0);   
         if (sent > 0)
             std::cout << "[SERVER] Respuesta enviada al cliente " << clientFd << std::endl;
         removeClient(clientFd);
@@ -284,13 +305,8 @@ void Server::handleClient(int clientFd)
 
 void Server::removeClient(int fd)
 {
-    // cerrar socket
     close(fd);
-
-    // borrar del mapa de clientes
     _clients.erase(fd);
-
-    // eliminar de la lista de poll
     for (size_t i = 0; i < _fds.size(); i++) {
         if (_fds[i].fd == fd) {
             _fds.erase(_fds.begin() + i);

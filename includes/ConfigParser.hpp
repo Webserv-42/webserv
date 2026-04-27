@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:57 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:31:04 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:31:45 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,9 +50,18 @@ public:
         locDummy.path = "/";
         locDummy.root = "www";             // Carpeta real física
         locDummy.index = "index.html";     // Archivo primario
+        locDummy.autoindex = true; 
+        
+        locDummy.upload_enable = true;          
+        locDummy.upload_store = "www/uploads"; 
+        locDummy.allowedMethods.push_back("GET"); 
+        locDummy.allowedMethods.push_back("POST");
+        locDummy.allowedMethods.push_back("DELETE");
+        
         dummy.locations.push_back(locDummy);
         _servers.push_back(dummy);
-        return true;
+        
+        return (true);
     }
 
     const std::vector<ServerConfig>& getServers() const {
