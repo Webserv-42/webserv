@@ -6,7 +6,7 @@
 /*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:20 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/08 16:41:03 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/09 16:00:24 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@ struct LocationConfig {
 };
 
 // Contrato para el servidor virtual
-struct ServerConfig {
+struct ServerConfig
+{
     int port;                                       //Puerto de escucha ej: 8080
     std::string host;                               //Dirección IP ej: "127.0.0.1"
     std::string serverName;                         //Nombre del servidor ej: "ejemplo.com"
