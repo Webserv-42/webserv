@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:32:02 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:32:13 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ void Server::acceptClient(int serverFd)
 	_fds.push_back(pfd);
 
 	client.fd = client_fd;
-	client.serverFd = serverFd; 	
-	_clients[client_fd] = client;
+	client.serverFd = serverFd;
     client.config = _socketToConfig[serverFd]; // <--- NUEVO: Le decimos qué servidor usó para conectarse
+	_clients[client_fd] = client;
 	std::cout << "[CORE] Nuevo cliente conectado: " << client_fd - 3 << std::endl;
 }
 
@@ -265,57 +265,7 @@ void Server::removeClient(int fd)
         5. Cerramos al cliente después de responder (comportamiento HTTP básico)
         
 */
-void Server::handleClient(int clientFd)
-{
-    char buffer[1024];
-    int bytes = recv(clientFd, buffer, sizeof(buffer), 0);
 
-    if (bytes <= 0) 
-    {
-        removeClient(clientFd);
-        return;
-    }
-    _clients[clientFd].buffer.append(buffer, bytes);
-    std::string& client_buffer = _clients[clientFd].buffer;
-   size_t pos_headers_end = client_buffer.find("\r\n\r\n");
-    if (pos_headers_end != std::string::npos) 
-    {
-        size_t total_header_bytes = pos_headers_end + 4;
-        long content_length = 0; 
-        size_t pos_cl = client_buffer.find("Content-Length: ");
-        if (pos_cl != std::string::npos && pos_cl < pos_headers_end) 
-        {
-            
-            size_t pos_end_line = client_buffer.find("\r\n", pos_cl);
-            std::string cl_str = client_buffer.substr(pos_cl + 16, pos_end_line - (pos_cl + 16));
-            content_length = std::atol(cl_str.c_str());
-        }
-        if (client_buffer.length() < (total_header_bytes + content_length)) 
-            return;
-        std::cout << "[SERVER] Peticion completa recibida del fd " << clientFd << std::endl;
-        HttpRequest req;
-        req.parse(client_buffer);      
-        std::string response = _httpHandler.handleRequest(req, *(_clients[clientFd].config));
-        int sent = send(clientFd, response.c_str(), response.length(), 0);   
-        if (sent > 0)
-            std::cout << "[SERVER] Respuesta enviada al cliente " << clientFd << std::endl;
-        removeClient(clientFd);
-    }
-}
-
-void Server::removeClient(int fd)
-{
-    close(fd);
-    _clients.erase(fd);
-    for (size_t i = 0; i < _fds.size(); i++) {
-        if (_fds[i].fd == fd) {
-            _fds.erase(_fds.begin() + i);
-            break;
-        }
-    }
-
-    std::cout << "[CORE] Cliente eliminado: " << fd << std::endl;
-}
 
 void Server::init(const std::vector<ServerConfig>& configs)
 {

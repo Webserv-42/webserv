@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:30:57 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:32:18 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "bookstore.hpp"
 #include "ConfigData.hpp"
+#include "HttpRequest.hpp"
 
 enum ClientState
 {
@@ -42,9 +43,9 @@ public:
     // Client(int fd);
 
     // ~Client();
-    Client() : fd(-1), buffer(""), config(NULL) {}
-    Client(int fd) : fd(fd), buffer(""), config(NULL) {}
-    ~Client() {}
+    Client();
+    Client(int fd);
+    ~Client();
 
     const ServerConfig* config;
 

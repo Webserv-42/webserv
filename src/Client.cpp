@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:34:52 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/23 18:57:23 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/27 15:23:37 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ void    Server::handleClient(int clientfd)
 	case    READING_HEADERS:
 	case    READING_BODY:
 		ReadFromClient(c); // se llena con recv.
+		if (c.state == PROCESSING)   // ← AÑADIR ESTO
+        	ProcessRequest(c);
 		break;
 	case    PROCESSING:
 		ProcessRequest(c); // se llena con el handleRequest.
@@ -49,18 +51,29 @@ void Server::ReadFromClient(Client& c)
 	int	n = recv(c.fd, buffer, sizeof(buffer), 0);
 
 	if (n <= 0)
-        c.state = DONE; return ;
+	{
+		c.state = DONE; 
+		return ;	
+	}
     c.buffer.append(buffer, n);
 	if (c.state == READING_HEADERS)
 	{
-		size_t pos = c.buffer.find("\r\n\r\n"); // Headers incompletos retorna a poll
 		// Headers completos: READ_BODY
 		// Parceo el Content - lenght de buffer 
-		c.ContLength = parserContentlength(c.buffer); // Pocesa la información en el http, creo que es de grabiel, ver la manera de conetctar la informacion.
-		if (c.ContLength > 0)
-			c.state = READING_BODY;
-		else
-			c.state = PROCESSING;
+		size_t posEnd = c.buffer.find("\r\n\r\n");
+		if (posEnd != std::string::npos)
+		{
+    		size_t posCL = c.buffer.find("Content-Length: ");
+    		if (posCL != std::string::npos && posCL < posEnd)
+    		{
+        		size_t endLine = c.buffer.find("\r\n", posCL);
+        		std::string clStr = c.buffer.substr(posCL + 16, endLine - (posCL + 16));
+        		c.ContLength = (size_t)std::atol(clStr.c_str());
+				c.state = READING_BODY; 
+			}
+			else
+        		c.state = PROCESSING;  
+    	}
 	}
 	if (c.state == READING_BODY)
 	{
@@ -75,7 +88,9 @@ void Server::ProcessRequest(Client& c)
 {
 	ServerConfig *config = _socketToConfig[c.serverFd];
 	
-	c.response = _httpHandler.handleRequest(c.buffer, *config);
+	HttpRequest req;
+    req.parse(c.buffer);
+	c.response = _httpHandler.handleRequest(req, *config);
 	c.bytesSend = 0;
 	c.state = SENDING;
 	
