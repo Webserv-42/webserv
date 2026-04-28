@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/23 18:35:27 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:32:18 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #define CLIENT_HPP
 
 #include "bookstore.hpp"
+#include "ConfigData.hpp"
+#include "HttpRequest.hpp"
 
 enum ClientState
 {
@@ -37,10 +39,17 @@ public:
     HttpRequest	request;	// Variable para el request (GABRIEL).
     time_t      lastActivity;
 
+    // Client();
+    // Client(int fd);
+
+    // ~Client();
     Client();
     Client(int fd);
-
     ~Client();
+
+    const ServerConfig* config;
+
 };
+
 
 #endif

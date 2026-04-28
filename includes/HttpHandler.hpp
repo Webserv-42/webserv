@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:59:47 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/22 13:26:15 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/28 11:29:52 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,20 @@
 
 #include "ConfigData.hpp"
 #include "bookstore.hpp"
+#include "HttpRequest.hpp"
+#include "CgiHandler.hpp"
+
+/*
+    Aquí recibimos la cadena de una peticion HTTP, parsearla, aplicar las reglas
+    de ruteo (ServerConfig), ejecutar CGI si es necesario mediante fork/execve
+    y construir el string de respuesta HTTP final.
+*/
+/*
+    class HttpHandler:
+        - Aqui tenemos que implementar el parseo del rawRequest, verificar
+            métodos, comprobar archivos estáticos o ejecutar CGI segun la
+            serverConf.
+*/
 
 class HttpHandler
 {
@@ -24,19 +38,14 @@ class HttpHandler
 		bool saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location);
 		bool deleteFile(const std::string &uri, const LocationConfig &location);
 		std::string getErrorPageContent(int errorCode, const LocationConfig& location);
+        std::string getMimeType(const std::string& filePath);
+        const LocationConfig* matchLocation(const std::string& uri, const ServerConfig& serverConf);
+        std::string buildErrorResponse(int statusCode);
+        std::string generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri);
     public:
-        HttpHandler() {}
-        ~HttpHandler() {}
-
-        std::string handleRequest(const std::string& rawRequest, const ServerConfig& serverConf) {
-            (void)rawRequest;
-            (void)serverConf;
-
-            std::cout << "[DEV 3] Processing HTTP request and generating response..." << std::endl;
-
-
-            return "HTTP/1.1 200 OK\r\nContent-Length: 13\r\n\r\nHello Webserv";
-        }
+        HttpHandler();
+        ~HttpHandler();
+        std::string handleRequest(HttpRequest& req, const ServerConfig& serverConf); 
 };
 
 #endif

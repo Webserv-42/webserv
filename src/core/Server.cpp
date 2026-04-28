@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/23 18:54:14 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:42:29 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/Server.hpp"
 #include "../includes/ConfigData.hpp"
+#include "../includes/HttpRequest.hpp"
 
 volatile sig_atomic_t Server::_stop = 0;
 
@@ -34,11 +35,10 @@ void Server::acceptClient(int serverFd)
 	pollfd pfd;
 	Client client;
 
-	client_fd = accept(serverFd, NULL, NULL);
-	if (client_fd < 0)
-		return;
-	// non-blocking
-	fcntl(client_fd, F_SETFL, O_NONBLOCK);
+    client_fd = accept(serverFd, NULL, NULL);
+    if (client_fd < 0)
+        return;
+    fcntl(client_fd, F_SETFL, O_NONBLOCK);
 
 	pfd.fd = client_fd;
 	pfd.events = POLLIN;
@@ -46,9 +46,9 @@ void Server::acceptClient(int serverFd)
 	_fds.push_back(pfd);
 
 	client.fd = client_fd;
-	client.serverFd = serverFd; 	
+	client.serverFd = serverFd;
+    client.config = _socketToConfig[serverFd]; // <--- NUEVO: Le decimos qué servidor usó para conectarse
 	_clients[client_fd] = client;
-	
 	std::cout << "[CORE] Nuevo cliente conectado: " << client_fd - 3 << std::endl;
 }
 
@@ -179,12 +179,25 @@ void Server::initSockets()
         _socketToConfig[server_fd] = &_configs[i];
         std::cout << "[CORE] listen on port " << _configs[i].port << std::endl;
     }
-    if (_fds.empty())
-    {
-	std::cerr << "Error: No sockets could be created. Exiting." << std::endl;
-	exit(1);
-    }
 }
+
+/*
+    handleClient:
+        1. Calculamos dónde empiezan realmente los datos del fichero (Body)
+            - Sumando esos 4 bytes invisibles del salto de línea de HTTP.
+        2. Por defecto, asumimos que no hay cuerpo (0 bytes).
+            - Buscamos si existe la etiqueta de longitud.
+            - Solo la damos por válida si la encuentra ANTES de terminar los headers.
+            - Extraemos el número "recortando" el texto. 
+            - Sumamos 16 porque la palabra "Content-Length: " tiene 16 letras exactas.
+            - atol() convierte "5000" (texto) a 5000 (número grande).
+        3. Comprobamos la longitud real de lo que tenemos vs lo que debería ser
+
+        4. Enviamos la respuesta al cliente
+        5. Cerramos al cliente después de responder (comportamiento HTTP básico)
+        
+*/
+
 
 void Server::init(const std::vector<ServerConfig>& configs)
 {

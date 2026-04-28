@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/23 18:27:35 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/28 10:31:14 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/ConfigParser.hpp"
-#include "../includes/Server.hpp"
+#include "ConfigParser.hpp"
+#include "Server.hpp"
+#include "HttpRequest.hpp"
 #include <iostream>
 #include <string>
 /*

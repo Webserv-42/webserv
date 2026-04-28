@@ -1,15 +1,18 @@
 
 NAME            = webserv
 SOURCES         =  src/main.cpp \
-					src/Server.cpp \
-					src/Client.cpp \
-					src/ConfigParser.cpp \
-					src/HttpHandler.cpp \
-					src/SessionManager.cpp
+					src/core/Server.cpp \
+					src/core/Client.cpp \
+					src/http/HttpRequest.cpp \
+					src/http/HttpHandler.cpp \
+					src/config/ConfigParser.cpp \
+					src/config/SessionManager.cpp \
+					src/config/CgiHandler.cpp
+
 OBJECTS         = $(SOURCES:.cpp=.o)
 
 CC              = c++
-CFLAGS          = -Wall -Wextra -Werror -std=c++98
+CFLAGS          = -Wall -Wextra -Werror -std=c++98 -Iincludes
 RM              = rm -rf
 
 GREEN           = \033[1;32m
