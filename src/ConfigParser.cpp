@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ConfigParser.cpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/04/28 11:17:30 by gafreire          #+#    #+#             */
+/*   Updated: 2026/04/28 11:20:08 by gafreire         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/ConfigParser.hpp"
 
 ConfigParser::ConfigParser() {}
@@ -122,16 +134,17 @@ bool ConfigParser::parseLocationDirective(const std::vector<std::string>& tokens
 
 	std::string key = tokens[0];
 
-	if (key == "root") {
+	if (key == "root")
 		location.root = tokens[1];
-	}
-	else if (key == "index") {
+	else if (key == "index")
 		location.index = tokens[1];
-	}
-	else if (key == "autoindex") {
+	else if (key == "autoindex")
 		// "on" → true, anything else → false
 		location.autoindex = (tokens[1] == "on");
-	}
+	else if (key == "upload_enable")
+    	location.upload_enable = (tokens[1] == "on");
+	else if (key == "upload_store")
+	    location.upload_store = tokens[1];
 	else if (key == "allowed_methods") {
 		// Can have multiple values: GET POST DELETE
 		// tokens[0] = "allowed_methods", tokens[1..n] = the methods
@@ -140,13 +153,12 @@ bool ConfigParser::parseLocationDirective(const std::vector<std::string>& tokens
 			location.allowedMethods.push_back(tokens[i]);
 		}
 	}
-	else if (key == "cgi_extension") {
+	else if (key == "cgi_extension")
 		location.cgiExtension = tokens[1];
-	}
-	else if (key == "cgi_path") {
+	else if (key == "cgi_path")
 		location.cgiPath = tokens[1];
-	}
-	else if (key == "error_page") {
+	else if (key == "error_page") 
+	{
 		if (tokens.size() < 3) {
 			std::cerr << "[CONFIG ERROR] error_page requires a code and a path" << std::endl;
 			return false;
@@ -154,11 +166,9 @@ bool ConfigParser::parseLocationDirective(const std::vector<std::string>& tokens
 		int code = std::atoi(tokens[1].c_str());
 		location.errorPages[code] = tokens[2];
 	}
-	else {
+	else
 		std::cerr << "[CONFIG WARNING] Unknown directive in location: " << key << std::endl;
-	}
-
-	return true;
+	return (true);
 }
 
 bool ConfigParser::validateServer(const ServerConfig& server) {
