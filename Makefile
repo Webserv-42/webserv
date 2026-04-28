@@ -1,13 +1,13 @@
 
 NAME            = webserv
 SOURCES         =  src/main.cpp \
-					src/Server.cpp \
-					src/Client.cpp \
-					src/HttpRequest.cpp \
-					src/HttpHandler.cpp \
-					src/ConfigParser.cpp \
-					src/SessionManager.cpp \
-					src/CgiHandler.cpp
+					src/core/Server.cpp \
+					src/core/Client.cpp \
+					src/http/HttpRequest.cpp \
+					src/http/HttpHandler.cpp \
+					src/config/ConfigParser.cpp \
+					src/config/SessionManager.cpp \
+					src/config/CgiHandler.cpp
 
 OBJECTS         = $(SOURCES:.cpp=.o)
 
