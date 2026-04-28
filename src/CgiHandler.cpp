@@ -1,6 +1,15 @@
 #include "../includes/CgiHandler.hpp"
 #include <sys/wait.h>
 
+CgiHandler::CgiHandler() 
+{
+
+}
+CgiHandler::~CgiHandler() 
+{
+	
+}
+
 std::string CgiHandler::executeCgi(const std::string &scriptPath, const std::string &body)
 {
 	int pipe_in[2];

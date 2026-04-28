@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 13:09:23 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:31:56 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 11:42:02 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,6 +202,28 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
             if (uri == "/")
                 filePath = "www/index.html";
         }
+        if (loc != NULL && !loc->cgiExtension.empty())
+        {
+            if (filePath.length() >= loc->cgiExtension.length() && 
+                filePath.substr(filePath.length() - loc->cgiExtension.length()) == loc->cgiExtension)
+            {
+                CgiHandler cgi;
+                std::string scriptToRun;
+                if (loc->cgiPath.empty())
+                    scriptToRun = filePath;
+                else
+                    scriptToRun = loc->cgiPath;
+                std::string cgiOutput = cgi.executeCgi(scriptToRun, req.getBody());
+                
+                std::stringstream cgiResp;
+                cgiResp << "HTTP/1.1 200 OK\r\n"
+                        << "Content-Length: " << cgiOutput.length() << "\r\n"
+                        << "\r\n"
+                        << cgiOutput;
+                return cgiResp.str();
+            }
+        }
+
         std::ifstream file(filePath.c_str());
         if (!file.is_open()) 
             return (buildErrorResponse(404));

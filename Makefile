@@ -7,6 +7,7 @@ SOURCES         =  src/main.cpp \
 					src/HttpHandler.cpp \
 					src/ConfigParser.cpp \
 					src/SessionManager.cpp \
+					src/CgiHandler.cpp
 
 OBJECTS         = $(SOURCES:.cpp=.o)
 

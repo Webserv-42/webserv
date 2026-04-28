@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:59:47 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:35:47 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/28 11:29:52 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "ConfigData.hpp"
 #include "bookstore.hpp"
 #include "HttpRequest.hpp"
+#include "CgiHandler.hpp"
 
 /*
     Aquí recibimos la cadena de una peticion HTTP, parsearla, aplicar las reglas
