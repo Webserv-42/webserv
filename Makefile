@@ -5,6 +5,9 @@ SOURCES         =  src/main.cpp \
 					src/core/Client.cpp \
 					src/http/HttpRequest.cpp \
 					src/http/HttpHandler.cpp \
+					src/http/HttpHandlerGet.cpp \
+					src/http/HttpHandlerPost.cpp \
+					src/http/HttpHandlerDelete.cpp \
 					src/config/ConfigParser.cpp \
 					src/config/SessionManager.cpp \
 					src/config/CgiHandler.cpp
