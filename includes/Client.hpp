@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:32:18 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:39:54 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ public:
     int         fd;		// File descriptor del cliente
     int		serverFd;	// que servidor acepto la conexión
     std::string buffer;		// Acumula lo que llega por recv
+    std::string	cookie;		// Variable para las cookies.
     std::string response;	// La respuesta construida
     size_t	bytesSend;	// Tiempo que lleva enviando datos
     size_t	ContLength;	// Header Content-Lenght

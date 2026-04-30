@@ -6,7 +6,7 @@
 /*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:09 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/23 18:52:42 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/04/30 13:11:55 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Server
 {
 private:
     std::vector<ServerConfig> _configs;
+    std::map<int, int> _cgiPipeToClient; // Registro de pipes y clientfd. (UNIR CON SAM).
     HttpHandler _httpHandler;
     static volatile sig_atomic_t _stop;
 
@@ -65,6 +66,8 @@ public:
     void init(const std::vector<ServerConfig>& configs); 
     void initSockets(); //socket bind listen añade a _fds
     void run(); // event loop → recorrer fds → accept o recv
+    void registredCgiFd(int pipeFd, int clientFd); // Sam llama esto para el bonus de los pipes (procesos).
+    void handleCgiResponse(int pipeFd); // Metodo que lee el pipe del cliente y mete la respuesta del cliente. (Cookies).
     void shutdown();
     static void handleSigint(int);
     void checkTimeouts();

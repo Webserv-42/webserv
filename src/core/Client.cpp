@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:34:52 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/27 15:23:37 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 17:40:23 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 
 Client::Client() : fd(-1), serverFd(-1), buffer(""), bytesSend(0),
                    ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)) {}
-Client::Client(int fd) : fd(fd), buffer("") {}
 Client::~Client() {}
 
 void    Server::handleClient(int clientfd)
@@ -44,7 +43,7 @@ void    Server::handleClient(int clientfd)
 		break;
 	}
 }
-
+// Modificado.
 void Server::ReadFromClient(Client& c)
 {
 	char	buffer[4096];
@@ -55,6 +54,7 @@ void Server::ReadFromClient(Client& c)
 		c.state = DONE; 
 		return ;	
 	}
+	c.lastActivity = time(NULL);
     c.buffer.append(buffer, n);
 	if (c.state == READING_HEADERS)
 	{
@@ -83,9 +83,18 @@ void Server::ReadFromClient(Client& c)
 			c.state = PROCESSING; // Si no esta retorna a poll para esperar mas datos.
 	}
 }
-
+// Modificado para uso de las cookies
 void Server::ProcessRequest(Client& c)
 {
+	std::string	cookie = "";
+	size_t	pos = c.buffer.find("Cookie: ");
+
+	if (pos != std::string::npos)
+	{
+		size_t end = c.buffer.find("\r\n", pos);
+        cookie = c.buffer.substr(pos + 8, end - (pos + 8));
+	}
+	c.cookie = cookie;
 	ServerConfig *config = _socketToConfig[c.serverFd];
 	
 	HttpRequest req;
@@ -104,7 +113,7 @@ void Server::ProcessRequest(Client& c)
 		
 	}
 }
-
+// Modificado
 void Server::sendResponse(Client& c)
 {
     const char* data = c.response.c_str() + c.bytesSend;
@@ -117,6 +126,8 @@ void Server::sendResponse(Client& c)
         return;
     }
     c.bytesSend += n;
+	if (n > 0)
+		c.lastActivity = time(NULL);
     if (c.bytesSend >= c.response.size())
     {
         // quitar POLLOUT antes de cerrar
@@ -128,7 +139,19 @@ void Server::sendResponse(Client& c)
                 break;
             }
         }
-        c.state = DONE;
+		bool	Keep_alive = (c.buffer.find("Connection: Keep-alive") != std::string::npos
+							|| c.buffer.find("connection: Keep-alive") != std::string::npos); // Preguntar la diferencia entre estos dos.
+		if (Keep_alive) // Revisa si el cliente sigue vivo para no dejar procesos zombies.
+		{
+			// resetear el cliente para la siguiente llamada.
+			c.buffer.clear();
+			c.response.clear();
+			c.bytesSend = 0;
+			c.ContLength = 0;
+			c.state = READING_HEADERS; // Vuelve a esperar para leer.
+		}
+		else
+        	c.state = DONE;
     }
 }
 
