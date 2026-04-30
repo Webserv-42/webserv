@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:39 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 13:34:17 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 11:18:02 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,12 @@
 */
 std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri)
 {
+    if (req.getBody().length() > (size_t)serverConf.clientMaxBodySize) 
+    {
+        std::cout << "[HTTP] Rechazando POST: tamaño " << req.getBody().length() 
+                  << " supera el límite de " << serverConf.clientMaxBodySize << std::endl;
+        return (buildErrorResponse(413, &serverConf, NULL));
+    }
     const LocationConfig* loc = matchLocation(uri, serverConf);
     if (loc == NULL || loc->upload_enable == false) 
         return (buildErrorResponse(403, &serverConf, loc)); 
