@@ -30,7 +30,7 @@
 
 // int main(int argc, char **argv) {
 //     std::string configFile = "conf/default.conf";
-    
+
 //     if (argc == 2) {
 //         configFile = argv[1];
 //     } else if (argc > 2) {
@@ -47,7 +47,7 @@
 //     Server webserv;
 //     try {
 //         webserv.init(parser.getServers());
-        
+
 //         webserv.run();
 //     } catch (const std::exception& e) {
 //         std::cerr << "Excepción fatal en el servidor: " << e.what() << std::endl;
@@ -60,8 +60,9 @@
 int main(int argc, char **argv)
 {
     signal(SIGPIPE, SIG_IGN); // En caso de que un cliente cirre la conexion mientras el servidor esta enviando datos, el proceso muere.
+	srand(time(NULL));
     std::string configFile = "conf/default.conf";
-    
+
     if (argc == 2) {
         configFile = argv[1];
     } else if (argc > 2) {

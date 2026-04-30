@@ -17,6 +17,7 @@
 #include "bookstore.hpp"
 #include "HttpRequest.hpp"
 #include "CgiHandler.hpp"
+#include "SessionManager.hpp"
 
 /*
     Aquí recibimos la cadena de una peticion HTTP, parsearla, aplicar las reglas
@@ -33,6 +34,7 @@
 class HttpHandler
 {
 	private:
+		SessionManager _sessionManager;
 		const LocationConfig *findLocation(const std::string &uri, const ServerConfig &serverConf);
 		std::string getStaticFileContent(const std::string &uri, const LocationConfig &location);
 		bool saveUploadedFile(const std::string &filename, const std::string &fileContent, const LocationConfig &location);
@@ -49,10 +51,11 @@ class HttpHandler
 		bool processDirectory(std::string& filePath, const std::string& uri, const LocationConfig* loc, std::string& outResponse);
 		std::string serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc);
 		std::string serveStaticFile(const std::string& filePath, const ServerConfig& serverConf, const LocationConfig* loc);
+		std::string manageSession(const std::string &cookieHeader);
     public:
         HttpHandler();
         ~HttpHandler();
-        std::string handleRequest(HttpRequest& req, const ServerConfig& serverConf); 
+        std::string handleRequest(HttpRequest& req, const ServerConfig& serverConf);
 };
 
 #endif

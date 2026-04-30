@@ -13,13 +13,25 @@
 #include "HttpHandler.hpp"
 
 // Constructores y Destructores vacíos
-HttpHandler::HttpHandler() 
+HttpHandler::HttpHandler()
 {
-    
+
 }
-HttpHandler::~HttpHandler() 
+HttpHandler::~HttpHandler()
 {
-    
+
+}
+
+std::string HttpHandler::manageSession(const std::string &cookieHeader)
+{
+	size_t pos = cookieHeader.find("session_id=");
+	if(pos != std::string::npos)
+	{
+		std::string sessionId = cookieHeader.substr(pos + 11);
+		if(_sessionManager.isValidSession(sessionId))
+			return "";
+	}
+	return _sessionManager.createSession();
 }
 
 const LocationConfig *HttpHandler::findLocation(const std::string &uri, const ServerConfig &serverConf)
@@ -96,28 +108,28 @@ std::string HttpHandler::getErrorPageContent(int errorCode, const LocationConfig
         funcion para que detecte el tipo de mime css,jpg...
 */
 
-std::string HttpHandler::getMimeType(const std::string& filePath) 
+std::string HttpHandler::getMimeType(const std::string& filePath)
 {
     size_t pos;
     std::string ext;
-    
+
     pos = filePath.find_last_of('.');
-    if (pos == std::string::npos) 
-        return ("text/plain");    
+    if (pos == std::string::npos)
+        return ("text/plain");
     ext = filePath.substr(pos);
-    if (ext == ".html" || ext == ".htm") 
+    if (ext == ".html" || ext == ".htm")
         return ("text/html");
-    if (ext == ".css") 
+    if (ext == ".css")
         return ("text/css");
-    if (ext == ".js") 
+    if (ext == ".js")
         return ("application/javascript");
-    if (ext == ".jpg" || ext == ".jpeg") 
+    if (ext == ".jpg" || ext == ".jpeg")
         return ("image/jpeg");
-    if (ext == ".png") 
+    if (ext == ".png")
         return ("image/png");
-    if (ext == ".gif") 
+    if (ext == ".gif")
         return ("image/gif");
-    if (ext == ".ico") 
+    if (ext == ".ico")
         return ("image/x-icon");
     return ("text/plain");
 }
@@ -127,21 +139,36 @@ std::string HttpHandler::getMimeType(const std::string& filePath)
         Director de tráfico principal. Delega la lógica en funciones especializadas
         dependiendo del método HTTP.
 */
-std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf) 
+std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf)
 {
+	std::string cookieHeader = "";
+	std::map<std::string, std::string> headers = req.getHeaders();
+	if (headers.find("Cookie") != headers.end())
+		cookieHeader = headers["Cookie"];
+	std::string newSessionId = manageSession(cookieHeader);
+
     std::string method = req.getMethod();
     std::string uri = req.getUri();
-    
+
     std::cout << "[HTTP HANDLER] Procesando petición: " << method << " " << uri << std::endl;
-    
-    if (method == "GET") 
-        return (handleGet(req, serverConf, uri));
-    else if (method == "POST") 
-        return (handlePost(req, serverConf, uri));
-    else if (method == "DELETE") 
-        return (handleDelete(req, serverConf, uri));
-        
-    return (buildErrorResponse(405, &serverConf, NULL));
+
+	std::string response;
+    if (method == "GET")
+        response = (handleGet(req, serverConf, uri));
+    else if (method == "POST")
+        response = (handlePost(req, serverConf, uri));
+    else if (method == "DELETE")
+        response = (handleDelete(req, serverConf, uri));
+	else
+		response = (buildErrorResponse(405, &serverConf, NULL));
+
+	if(!newSessionId.empty())
+	{
+		size_t headerEnd = response.find("\r\n");
+		if(headerEnd != std::string::npos)
+			response.insert(headerEnd + 2, "Set-Cookie: session_id=" + newSessionId + "\r\n");
+	}
+	return response;
 }
 
 /*
@@ -154,16 +181,16 @@ const LocationConfig* HttpHandler::matchLocation(const std::string& uri, const S
 {
     const LocationConfig* bestMatch;
     size_t longestMatch;
-    
+
     bestMatch = NULL;
     longestMatch = 0;
 
-    for (size_t i = 0; i < serverConf.locations.size(); ++i) 
+    for (size_t i = 0; i < serverConf.locations.size(); ++i)
     {
         std::string locPath = serverConf.locations[i].path;
-        if (uri.find(locPath) == 0) 
+        if (uri.find(locPath) == 0)
         {
-            if (locPath.length() >= longestMatch) 
+            if (locPath.length() >= longestMatch)
             {
                 longestMatch = locPath.length();
                 bestMatch = &serverConf.locations[i];
@@ -179,7 +206,7 @@ const LocationConfig* HttpHandler::matchLocation(const std::string& uri, const S
         2. Montamos el esqueleto HTML
         3. Montamos la respuesta HTTP final con el header Content-Type correcto!
 */
-std::string HttpHandler::buildErrorResponse(int statusCode, const ServerConfig* serverConf, const LocationConfig* loc) 
+std::string HttpHandler::buildErrorResponse(int statusCode, const ServerConfig* serverConf, const LocationConfig* loc)
 {
     std::string customContent = "";
     if (loc != NULL) {
@@ -288,9 +315,9 @@ std::string HttpHandler::buildErrorResponse(int statusCode, const ServerConfig* 
             Añadimos "/" al final si es una carpeta real
             ¡Creamos el link dinámico!
         4. Cerramos y limpiamos
-        5. ¡A empaquetar de vuelta al cliente! 
+        5. ¡A empaquetar de vuelta al cliente!
 */
-std::string HttpHandler::generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri) 
+std::string HttpHandler::generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri)
 {
     DIR* dir;
     struct dirent* entry;
@@ -298,23 +325,23 @@ std::string HttpHandler::generateDirectoryListing(const std::string& physicalPat
 
     dir = opendir(physicalPath.c_str());
     if (dir == NULL)
-        return buildErrorResponse(403); 
+        return buildErrorResponse(403);
 
     html << "<!DOCTYPE html>\n<html>\n<head><title>Index of " << currentUri << "</title></head>\n"
          << "<body style=\"font-family: monospace;\">\n"
          << "<h1>Index of " << currentUri << "</h1><hr>\n"
          << "<ul style=\"list-style-type: none; padding: 0;\">\n";
-    while ((entry = readdir(dir)) != NULL) 
+    while ((entry = readdir(dir)) != NULL)
     {
         std::string fileName = entry->d_name;
-        if (fileName == ".") 
+        if (fileName == ".")
             continue;
         std::string displayName = fileName;
         if (entry->d_type == DT_DIR)
             displayName += "/";
-        html << "  <li style=\"margin: 5px 0;\"><a href=\"" << currentUri << (currentUri[currentUri.length()-1] == '/' ? "" : "/") << displayName << "\">" 
+        html << "  <li style=\"margin: 5px 0;\"><a href=\"" << currentUri << (currentUri[currentUri.length()-1] == '/' ? "" : "/") << displayName << "\">"
              << displayName << "</a></li>\n";
-    }    
+    }
     closedir(dir);
     html << "</ul>\n<hr>\n</body>\n</html>";
     std::string htmlBody = html.str();
