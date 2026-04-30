@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:17:30 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 11:20:08 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 11:01:55 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,8 @@ bool ConfigParser::parseServerDirective(const std::vector<std::string>& tokens,
 		// Store error_pages at server level to apply them
 		// to all locations that don't have their own
 		int code = std::atoi(tokens[1].c_str());
-		// Will be stored in each location during validation
-		// For now, just log them (will be redistributed later if needed)
-		(void)code;
-		std::cout << "[CONFIG] error_page " << tokens[1] << " -> " << tokens[2] << std::endl;
+		server.errorPages[code] = tokens[2];
+		std::cout << "[CONFIG] server error_page " << tokens[1] << " -> " << tokens[2] << std::endl;
 	}
 	else {
 		std::cerr << "[CONFIG WARNING] Unknown directive in server: " << key << std::endl;
@@ -252,6 +250,7 @@ bool ConfigParser::parse(const std::string& filename) {
 				currentServer.host = "0.0.0.0";
 				currentServer.serverName = "";
 				currentServer.clientMaxBodySize = 1048576;
+				currentServer.errorPages.clear();
 
 				std::cout << "[CONFIG] Server block opened (line " << lineNum << ")" << std::endl;
 			}
@@ -265,6 +264,7 @@ bool ConfigParser::parse(const std::string& filename) {
 				currentServer.host = "0.0.0.0";
 				currentServer.serverName = "";
 				currentServer.clientMaxBodySize = 1048576;
+				currentServer.errorPages.clear();
 			}
 			else if (tokens[0] == "{") {
 				// Orphan "{" at global level → we're already opening a server
@@ -281,6 +281,16 @@ bool ConfigParser::parse(const std::string& filename) {
 		else if (state == STATE_SERVER) {
 			// Detect "}" → end of server block
 			if (tokens[0] == "}") {
+				// Redistribute server error pages to locations
+				for (size_t i = 0; i < currentServer.locations.size(); ++i) {
+					for (std::map<int, std::string>::const_iterator it = currentServer.errorPages.begin(); it != currentServer.errorPages.end(); ++it) 
+					{
+						if (currentServer.locations[i].errorPages.find(it->first) == currentServer.locations[i].errorPages.end()) {
+							currentServer.locations[i].errorPages[it->first] = it->second;
+						}
+					}
+				}
+
 				// Validate the server before adding it
 				if (!validateServer(currentServer)) {
 					std::cerr << "[CONFIG ERROR] Validation failed (line "

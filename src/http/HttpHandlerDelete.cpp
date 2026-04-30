@@ -30,7 +30,7 @@ std::string HttpHandler::handleDelete(HttpRequest& req, const ServerConfig& serv
             if (loc->allowedMethods[i] == req.getMethod()) 
                 isAllowed = true;
         if (!isAllowed) 
-            return (buildErrorResponse(405));
+            return (buildErrorResponse(405, &serverConf, loc));
     }
     std::string filePath;
     if (loc != NULL)
@@ -44,5 +44,5 @@ std::string HttpHandler::handleDelete(HttpRequest& req, const ServerConfig& serv
         return (response.str());
     } 
     else
-        return (buildErrorResponse(404));
+        return (buildErrorResponse(404, &serverConf, loc));
 }

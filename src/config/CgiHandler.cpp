@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 11:52:35 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 12:57:39 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 11:33:10 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,25 @@ std::string CgiHandler::readParent(pid_t pid, const HttpRequest &req)
 	write(_pipeIn[1], body.c_str(), body.length());
 	close(_pipeIn[1]);
 	
-	waitpid(pid, NULL, 0);
+	time_t start = time(NULL);
+    int status;
+    bool timeout = false;
+	while (waitpid(pid, &status, WNOHANG) == 0) 
+    {
+        if (time(NULL) - start >= 5)
+        { 
+            kill(pid, SIGKILL);
+            timeout = true;
+            break;
+        }
+        usleep(50000);
+    }
+	
+	if (timeout) 
+    {
+        close(_pipeOut[0]);
+        return ("HTTP/1.1 504 Gateway Timeout\r\nContent-Type: text/html\r\nContent-Length: 48\r\n\r\n<h1>504 Gateway Timeout</h1><p>CGI colgado</p>");
+    }
 	
 	char buffer[4096];
 	std::string result = "";
