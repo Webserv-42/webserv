@@ -25,7 +25,7 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
 {
     const LocationConfig* loc = matchLocation(uri, serverConf);
     if (loc == NULL || loc->upload_enable == false) 
-        return (buildErrorResponse(403)); 
+        return (buildErrorResponse(403, &serverConf, loc)); 
     
     std::string uploadDir = loc->upload_store;
     static int fileCounter = 0;
@@ -37,7 +37,7 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
     fileCounter++; 
     std::ofstream outFile(fullPath.c_str(), std::ios::binary);
     if (!outFile.is_open())
-        return (buildErrorResponse(500)); 
+        return (buildErrorResponse(500, &serverConf, loc)); 
     
     outFile << req.getBody(); 
     outFile.close();

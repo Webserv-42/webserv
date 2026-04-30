@@ -40,7 +40,7 @@ class HttpHandler
 		std::string getErrorPageContent(int errorCode, const LocationConfig& location);
         std::string getMimeType(const std::string& filePath);
         const LocationConfig* matchLocation(const std::string& uri, const ServerConfig& serverConf);
-        std::string buildErrorResponse(int statusCode);
+        std::string buildErrorResponse(int statusCode, const ServerConfig* serverConf = NULL, const LocationConfig* loc = NULL);
         std::string generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri);
         std::string handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri);
 		std::string handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri);
@@ -48,7 +48,7 @@ class HttpHandler
         bool isMethodAllowed(const LocationConfig* loc, const std::string& method);
 		bool processDirectory(std::string& filePath, const std::string& uri, const LocationConfig* loc, std::string& outResponse);
 		std::string serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc);
-		std::string serveStaticFile(const std::string& filePath);
+		std::string serveStaticFile(const std::string& filePath, const ServerConfig& serverConf, const LocationConfig* loc);
     public:
         HttpHandler();
         ~HttpHandler();

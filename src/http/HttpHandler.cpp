@@ -141,7 +141,7 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
     else if (method == "DELETE") 
         return (handleDelete(req, serverConf, uri));
         
-    return (buildErrorResponse(405));
+    return (buildErrorResponse(405, &serverConf, NULL));
 }
 
 /*
@@ -179,26 +179,78 @@ const LocationConfig* HttpHandler::matchLocation(const std::string& uri, const S
         2. Montamos el esqueleto HTML
         3. Montamos la respuesta HTTP final con el header Content-Type correcto!
 */
-std::string HttpHandler::buildErrorResponse(int statusCode) 
+std::string HttpHandler::buildErrorResponse(int statusCode, const ServerConfig* serverConf, const LocationConfig* loc) 
 {
+    std::string customContent = "";
+    if (loc != NULL) {
+        std::map<int, std::string>::const_iterator it = loc->errorPages.find(statusCode);
+        if (it != loc->errorPages.end()) {
+            customContent = getErrorPageContent(statusCode, *loc);
+        }
+    } else if (serverConf != NULL) {
+        std::map<int, std::string>::const_iterator it = serverConf->errorPages.find(statusCode);
+        if (it != serverConf->errorPages.end()) {
+            std::string fullPath = it->second;
+            if (!fullPath.empty() && fullPath[0] == '/') {
+                std::ifstream file(fullPath.substr(1).c_str());
+                if (file) {
+                    std::ostringstream buffer;
+                    buffer << file.rdbuf();
+                    customContent = buffer.str();
+                } else {
+                    std::ifstream file2(fullPath.c_str());
+                    if (file2) {
+                        std::ostringstream buffer;
+                        buffer << file2.rdbuf();
+                        customContent = buffer.str();
+                    }
+                }
+            } else {
+                std::ifstream file(fullPath.c_str());
+                if (file) {
+                    std::ostringstream buffer;
+                    buffer << file.rdbuf();
+                    customContent = buffer.str();
+                }
+            }
+        }
+    }
+
     std::string statusText;
     std::string message;
 
-    if (statusCode == 404) 
-    {
+    if (statusCode == 400) {
+        statusText = "400 Bad Request";
+        message = "El servidor no pudo entender la solicitud.";
+    } else if (statusCode == 403) {
+        statusText = "403 Forbidden";
+        message = "Acceso denegado a este recurso.";
+    } else if (statusCode == 404) {
         statusText = "404 Not Found";
         message = "Oops! El archivo que buscas no ha sido encontrado en el servidor.";
-    } 
-    else if (statusCode == 405) 
-    {
+    } else if (statusCode == 405) {
         statusText = "405 Method Not Allowed";
         message = "El metodo HTTP utilizado no esta permitido en esta ruta.";
-    } 
-    else 
-    {
+    } else if (statusCode == 413) {
+        statusText = "413 Payload Too Large";
+        message = "El cuerpo de la solicitud es demasiado grande.";
+    } else if (statusCode == 501) {
+        statusText = "501 Not Implemented";
+        message = "El servidor no soporta la funcionalidad requerida.";
+    } else {
         statusText = "500 Internal Server Error";
         message = "Un error inesperado desato el caos dentro del servidor.";
         statusCode = 500;
+    }
+
+    if (!customContent.empty()) {
+        std::stringstream response;
+        response << "HTTP/1.1 " << statusText << "\r\n"
+                 << "Content-Type: text/html\r\n"
+                 << "Content-Length: " << customContent.length() << "\r\n"
+                 << "\r\n"
+                 << customContent;
+        return (response.str());
     }
 
     // mover este html a un .html!!!!!

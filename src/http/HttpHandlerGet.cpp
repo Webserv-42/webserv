@@ -29,7 +29,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
     if (loc != NULL) 
     {
         if (!isMethodAllowed(loc, req.getMethod()))
-            return (buildErrorResponse(405));
+            return (buildErrorResponse(405, &serverConf, loc));
         filePath = loc->root + uri;
     } 
     else 
@@ -49,7 +49,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
     std::string cgiResponse = serveCgiIfMatch(filePath, req, loc);
     if (!cgiResponse.empty()) 
         return (cgiResponse);
-    return (serveStaticFile(filePath));
+    return (serveStaticFile(filePath, serverConf, loc));
 }
 
 /*
@@ -99,7 +99,7 @@ bool HttpHandler::processDirectory(std::string& filePath, const std::string& uri
         return (true); 
     } 
     
-    outResponse = buildErrorResponse(403);
+    outResponse = buildErrorResponse(403, NULL, loc);
     return (true);
 }
 
@@ -130,11 +130,11 @@ std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpReques
     return ("");
 }
 
-std::string HttpHandler::serveStaticFile(const std::string& filePath)
+std::string HttpHandler::serveStaticFile(const std::string& filePath, const ServerConfig& serverConf, const LocationConfig* loc)
 {
     std::ifstream file(filePath.c_str());
     if (!file.is_open()) 
-        return (buildErrorResponse(404));
+        return (buildErrorResponse(404, &serverConf, loc));
     
     std::stringstream buffer;
     buffer << file.rdbuf();
