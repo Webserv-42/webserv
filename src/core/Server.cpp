@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/28 10:42:29 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/04/30 13:30:14 by alejagom         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,13 @@ void Server::acceptClient(int serverFd)
     client_fd = accept(serverFd, NULL, NULL);
     if (client_fd < 0)
         return;
+    if (_clients.size() >= 900) // limita el numero de clientes del servidor
+    {
+        std::cerr << "[CORE] Límite de conexiones alcanzado, rechazando fd: " << client_fd << std::endl;
+        close(client_fd);
+        return ;
+    }
+    
     fcntl(client_fd, F_SETFL, O_NONBLOCK);
 
 	pfd.fd = client_fd;
@@ -121,6 +128,8 @@ void Server::run()
             {
                 if (_socketToConfig.count(_fds[i].fd))
                     acceptClient(_fds[i].fd);
+		else if (_cgiPipeToClient.count(_fds[i].fd))
+			handleCgiResponse(_fds[i].fd);
                 else
                     handleClient(_fds[i].fd);
             }
@@ -129,6 +138,43 @@ void Server::run()
         }
     }
     shutdown();
+}
+// Nuevo
+void	Server::handleCgiResponse(int pipeFd)
+{
+	int	clientFd = _cgiPipeToClient[pipeFd];
+	Client&	c = _clients[clientFd];
+	char	buffer[4096];
+	int	n;
+
+	n = read(pipeFd, buffer, sizeof(buffer));
+	if (n <= 0)
+	{
+		close(pipeFd);
+		for (size_t i = 0; i < _fds.size(); i++)
+		{
+			if (_fds[i].fd == pipeFd)
+			{
+				_fds.erase(_fds.begin() + i);
+				break ;
+			}
+			_cgiPipeToClient.erase(pipeFd);
+
+			for (size_t n = 0; n < _fds.size(); n++)
+			{
+				if (_fds[n].fd == clientFd)
+				{
+					_fds[n].events = POLLIN | POLLOUT;
+					break ;
+				}
+			}
+			c.bytesSend = 0;
+			c.state = SENDING;
+			return ;
+		}
+		c.response.append(buffer, n); // acumula la respuesta de CGI
+		c.lastActivity = time(NULL);
+	}
 }
 
 void Server::initSockets()
@@ -181,6 +227,17 @@ void Server::initSockets()
     }
 }
 
+void    Server::registredCgiFd(int  pipeFd, int clientFd)
+{
+    pollfd	pdf;
+
+    pdf.fd = pipeFd;
+    pdf.events = POLLIN;
+    pdf.revents = 0;
+    _fds.push_back(pdf);
+
+    _cgiPipeToClient[pipeFd] = clientFd;
+}
 /*
     handleClient:
         1. Calculamos dónde empiezan realmente los datos del fichero (Body)
