@@ -41,6 +41,7 @@ struct ServerConfig
     std::string host;                               //Dirección IP ej: "127.0.0.1"
     std::string serverName;                         //Nombre del servidor ej: "ejemplo.com"
     long clientMaxBodySize;                         //Límite de tamaño para el body en POST en bytes
+    std::map<int, std::string> errorPages;          // Páginas de error a nivel de servidor
     std::vector<LocationConfig> locations;          // Lista de rutas asociadas a este servidor
 };
 
