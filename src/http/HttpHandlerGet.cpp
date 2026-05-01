@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:25 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 13:36:19 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:39:22 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
         3. Ejecutar CGI (Si coincide la extensión)
         4. Servir Archivo Estático
 */
-std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri)
+std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd)
 {
     std::string filePath;
     const LocationConfig* loc = matchLocation(uri, serverConf);
@@ -46,7 +46,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
         if (handled) 
             return (dirResponse);
     }
-    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc);
+    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd);
     if (!cgiResponse.empty()) 
         return (cgiResponse);
     return (serveStaticFile(filePath, serverConf, loc));
@@ -108,9 +108,9 @@ bool HttpHandler::processDirectory(std::string& filePath, const std::string& uri
         1. Comprueba si el CGI está habilitado para esta ruta (comprobando loc->cgiExtension)
         2. Mira si las últimas letras del archivo solicitado coinciden con la extensión (ej. .py)
         3. Si hay coincidencia, instancia la clase CgiHandler pasándole el control absoluto
-        4. Recibe el resultado del script, lo empaqueta con las cabeceras HTTP necesarias y lo devuelve
+        4. Si es CGI, guarda el FD de lectura en cgiPipeFd y devuelve un string vacío para su manejo asíncrono
 */
-std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc)
+std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc, int* cgiPipeFd)
 {
     if (loc == NULL || loc->cgiExtension.empty()) 
         return ("");
@@ -118,14 +118,15 @@ std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpReques
         filePath.substr(filePath.length() - loc->cgiExtension.length()) == loc->cgiExtension)
     {
         CgiHandler cgi;
-        std::string scriptToRun = loc->cgiPath.empty() ? filePath : loc->cgiPath;
-        std::string cgiOutput = cgi.executeCgi(scriptToRun, req);
-        
-        std::stringstream cgiResp;
-        cgiResp << "HTTP/1.1 200 OK\r\n"
-                << "Content-Length: " << cgiOutput.length() << "\r\n\r\n"
-                << cgiOutput;
-        return (cgiResp.str());
+        std::string scriptToRun;
+        if (loc->cgiPath.empty()) 
+            scriptToRun = filePath;
+        else 
+            scriptToRun = loc->cgiPath;
+       int pipeFd = cgi.executeCgi(scriptToRun, filePath, req);
+        if (cgiPipeFd != NULL)
+            *cgiPipeFd = pipeFd;
+        return ("");
     }
     return ("");
 }
