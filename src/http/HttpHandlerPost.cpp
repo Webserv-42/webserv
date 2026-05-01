@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:39 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/30 11:18:02 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:57:02 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
         5. Escribe el cuerpo entero de la petición HTTP (req.getBody()) en el archivo
         6. Si todo sale bien, devuelve un código 201 Created confirmando la creación
 */
-std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri)
+std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd)
 {
     if (req.getBody().length() > (size_t)serverConf.clientMaxBodySize) 
     {
@@ -29,9 +29,16 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
                   << " supera el límite de " << serverConf.clientMaxBodySize << std::endl;
         return (buildErrorResponse(413, &serverConf, NULL));
     }
+    
     const LocationConfig* loc = matchLocation(uri, serverConf);
     if (loc == NULL || loc->upload_enable == false) 
         return (buildErrorResponse(403, &serverConf, loc)); 
+        
+    // Comprobamos si la petición POST va dirigida a un script CGI
+    std::string filePath = loc->root + uri;
+    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd);
+    if (!cgiResponse.empty() || (cgiPipeFd != NULL && *cgiPipeFd != -1)) 
+        return (cgiResponse);
     
     std::string uploadDir = loc->upload_store;
     std::string body = req.getBody();
