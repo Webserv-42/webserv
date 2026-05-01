@@ -15,7 +15,7 @@
 #include "ConfigData.hpp"
 
 Client::Client() : fd(-1), serverFd(-1), buffer(""), bytesSend(0),
-                   ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)) {}
+                   ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)), keepAlive(false) {}
 Client::~Client() {}
 
 void    Server::handleClient(int clientfd)
@@ -116,6 +116,20 @@ void Server::ProcessRequest(Client& c)
 	HttpRequest req;
     req.parse(c.buffer);
     
+    // --- Comprobar Keep-Alive de forma segura ---
+    c.keepAlive = false;
+    std::map<std::string, std::string> headers = req.getHeaders();
+    if (headers.find("Connection") != headers.end()) 
+    {
+        std::string connStr = headers["Connection"];
+        for (size_t i = 0; i < connStr.length(); i++) {
+            connStr[i] = std::tolower(connStr[i]);
+        }
+        if (connStr.find("keep-alive") != std::string::npos) {
+            c.keepAlive = true;
+        }
+    }
+    
 	int cgiPipeFd = -1;
 	c.response = _httpHandler.handleRequest(req, *config, &cgiPipeFd);
 	c.bytesSend = 0;
@@ -163,15 +177,14 @@ void Server::sendResponse(Client& c)
                 break;
             }
         }
-		bool	Keep_alive = (c.buffer.find("Connection: Keep-alive") != std::string::npos
-							|| c.buffer.find("connection: Keep-alive") != std::string::npos); // Preguntar la diferencia entre estos dos.
-		if (Keep_alive) // Revisa si el cliente sigue vivo para no dejar procesos zombies.
+		if (c.keepAlive) // Revisa si el cliente sigue vivo usando los headers (no el buffer crudo)
 		{
 			// resetear el cliente para la siguiente llamada.
 			c.buffer.clear();
 			c.response.clear();
 			c.bytesSend = 0;
 			c.ContLength = 0;
+			c.keepAlive = false;
 			c.state = READING_HEADERS; // Vuelve a esperar para leer.
 		}
 		else

@@ -40,6 +40,7 @@ public:
     ClientState	state;		// Estados para el HTTP
     HttpRequest	request;	// Variable para el request (GABRIEL).
     time_t      lastActivity;
+    bool        keepAlive;
 
     // Client();
     // Client(int fd);
