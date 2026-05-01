@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:34:52 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/30 17:40:23 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:43:35 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Client.hpp"
-#include "../includes/Server.hpp"
-#include "../includes/ConfigData.hpp"
+#include "Client.hpp"
+#include "Server.hpp"
+#include "ConfigData.hpp"
 
 Client::Client() : fd(-1), serverFd(-1), buffer(""), bytesSend(0),
                    ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)) {}
@@ -32,6 +32,8 @@ void    Server::handleClient(int clientfd)
 		break;
 	case    PROCESSING:
 		ProcessRequest(c); // se llena con el handleRequest.
+		break;
+	case    CGI_WAITING:
 		break;
 	case    SENDING:
 		sendResponse(c); // avanza con cada send, entre clientes.
@@ -88,7 +90,6 @@ void Server::ProcessRequest(Client& c)
 {
 	std::string	cookie = "";
 	size_t	pos = c.buffer.find("Cookie: ");
-
 	if (pos != std::string::npos)
 	{
 		size_t end = c.buffer.find("\r\n", pos);
@@ -99,18 +100,26 @@ void Server::ProcessRequest(Client& c)
 	
 	HttpRequest req;
     req.parse(c.buffer);
-	c.response = _httpHandler.handleRequest(req, *config);
+    
+	int cgiPipeFd = -1;
+	c.response = _httpHandler.handleRequest(req, *config, &cgiPipeFd);
 	c.bytesSend = 0;
-	c.state = SENDING;
-	
-	for (size_t i = 0; i < _fds.size(); i++)
+	if (cgiPipeFd != -1)
 	{
-		if (_fds[i].fd == c.fd)
+		registredCgiFd(cgiPipeFd, c.fd);
+		c.state = CGI_WAITING;
+	}
+	else
+	{
+		c.state = SENDING;
+		for (size_t i = 0; i < _fds.size(); i++)
 		{
-			_fds[i].events = POLLIN | POLLOUT;
-			break ;
+			if (_fds[i].fd == c.fd)
+			{
+				_fds[i].events = POLLIN | POLLOUT;
+				break ;
+			}
 		}
-		
 	}
 }
 // Modificado

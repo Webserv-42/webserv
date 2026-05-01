@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 13:09:23 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 13:27:47 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/01 17:10:16 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,7 +139,7 @@ std::string HttpHandler::getMimeType(const std::string& filePath)
         Director de tráfico principal. Delega la lógica en funciones especializadas
         dependiendo del método HTTP.
 */
-std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf)
+std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf, int* cgiPipeFd)
 {
 	std::string cookieHeader = "";
 	std::map<std::string, std::string> headers = req.getHeaders();
@@ -153,12 +153,12 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
     std::cout << "[HTTP HANDLER] Procesando petición: " << method << " " << uri << std::endl;
 
 	std::string response;
-    if (method == "GET")
-        response = (handleGet(req, serverConf, uri));
+        if (method == "GET")
+        return handleGet(req, serverConf, uri, cgiPipeFd);
     else if (method == "POST")
-        response = (handlePost(req, serverConf, uri));
+        return handlePost(req, serverConf, uri, cgiPipeFd);
     else if (method == "DELETE")
-        response = (handleDelete(req, serverConf, uri));
+        return handleDelete(req, serverConf, uri);
 	else
 		response = (buildErrorResponse(405, &serverConf, NULL));
 
