@@ -69,6 +69,21 @@ void Server::ReadFromClient(Client& c)
         		size_t endLine = c.buffer.find("\r\n", posCL);
         		std::string clStr = c.buffer.substr(posCL + 16, endLine - (posCL + 16));
         		c.ContLength = (size_t)std::atol(clStr.c_str());
+				if(c.ContLength > (size_t)c.config->clientMaxBodySize)
+				{
+					c.response = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\n\r\n";
+					c.bytesSend = 0;
+					c.state = SENDING;
+					for (size_t i = 0; i < _fds.size(); i++)
+					{
+						if (_fds[i].fd == c.fd)
+						{
+							_fds[i].events = POLLIN | POLLOUT;
+							break ;
+						}
+					}
+					return;
+				}
 				c.state = READING_BODY; 
 			}
 			else
