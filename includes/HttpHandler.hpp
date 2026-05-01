@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:59:47 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 13:24:19 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/01 17:09:56 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,18 +44,18 @@ class HttpHandler
         const LocationConfig* matchLocation(const std::string& uri, const ServerConfig& serverConf);
         std::string buildErrorResponse(int statusCode, const ServerConfig* serverConf = NULL, const LocationConfig* loc = NULL);
         std::string generateDirectoryListing(const std::string& physicalPath, const std::string& currentUri);
-        std::string handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri);
-		std::string handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri);
+        std::string handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd);
+		std::string handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd);
 		std::string handleDelete(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri);
         bool isMethodAllowed(const LocationConfig* loc, const std::string& method);
 		bool processDirectory(std::string& filePath, const std::string& uri, const LocationConfig* loc, std::string& outResponse);
-		std::string serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc);
+		std::string serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc, int* cgiPipeFd);
 		std::string serveStaticFile(const std::string& filePath, const ServerConfig& serverConf, const LocationConfig* loc);
 		std::string manageSession(const std::string &cookieHeader);
     public:
         HttpHandler();
         ~HttpHandler();
-        std::string handleRequest(HttpRequest& req, const ServerConfig& serverConf);
+        std::string handleRequest(HttpRequest& req, const ServerConfig& serverConf, int* cgiPipeFd = NULL);
 };
 
 #endif

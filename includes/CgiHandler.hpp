@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 12:05:31 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/29 12:55:40 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:21:34 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,14 @@ class CgiHandler
 		
 		char** createEnv(const std::string &scriptPath, const HttpRequest &req);
 		void freeEnv(char** envp);
-		void executeChild(const std::string &scriptPath, const HttpRequest &req);
-		std::string readParent(pid_t pid, const HttpRequest &req);
+		void executeChild(const std::string &executablePath, const std::string &scriptPath, 
+			const HttpRequest &req);
 	public:
 		CgiHandler();
 		~CgiHandler();
 
-		std::string executeCgi(const std::string &scriptPath, const HttpRequest &req);
+		int executeCgi(const std::string &executablePath, const std::string &scriptPath, 
+			const HttpRequest &req);
 };
 
 #endif

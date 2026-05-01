@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/30 17:39:54 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:40:11 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ enum ClientState
     READING_HEADERS,
     READING_BODY,
     PROCESSING,
+    CGI_WAITING,
     SENDING,
     DONE    
 };

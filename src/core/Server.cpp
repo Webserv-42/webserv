@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alejagom <alejagom@student.42madrid.com    +#+  +:+       +#+        */
+/*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:55:56 by alejagom          #+#    #+#             */
-/*   Updated: 2026/04/30 13:30:14 by alejagom         ###   ########.fr       */
+/*   Updated: 2026/05/01 16:46:37 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,15 +139,15 @@ void Server::run()
     }
     shutdown();
 }
-// Nuevo
+
 void	Server::handleCgiResponse(int pipeFd)
 {
 	int	clientFd = _cgiPipeToClient[pipeFd];
 	Client&	c = _clients[clientFd];
 	char	buffer[4096];
 	int	n;
-
 	n = read(pipeFd, buffer, sizeof(buffer));
+	
 	if (n <= 0)
 	{
 		close(pipeFd);
@@ -158,23 +158,36 @@ void	Server::handleCgiResponse(int pipeFd)
 				_fds.erase(_fds.begin() + i);
 				break ;
 			}
-			_cgiPipeToClient.erase(pipeFd);
-
-			for (size_t n = 0; n < _fds.size(); n++)
-			{
-				if (_fds[n].fd == clientFd)
-				{
-					_fds[n].events = POLLIN | POLLOUT;
-					break ;
-				}
-			}
-			c.bytesSend = 0;
-			c.state = SENDING;
-			return ;
 		}
-		c.response.append(buffer, n); // acumula la respuesta de CGI
-		c.lastActivity = time(NULL);
+		_cgiPipeToClient.erase(pipeFd);
+		for (size_t i = 0; i < _fds.size(); i++)
+		{
+			if (_fds[i].fd == clientFd)
+			{
+				_fds[i].events = POLLIN | POLLOUT;
+				break ;
+			}
+		}
+		size_t headerEnd = c.response.find("\r\n\r\n");
+		if (headerEnd != std::string::npos)
+		{
+			size_t bodyLen = c.response.length() - (headerEnd + 4);
+			std::stringstream ss;
+			ss << "HTTP/1.1 200 OK\r\nContent-Length: " << bodyLen << "\r\n";
+			c.response = ss.str() + c.response;
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << "HTTP/1.1 200 OK\r\nContent-Length: " << c.response.length() << "\r\n\r\n";
+			c.response = ss.str() + c.response;
+		}
+		c.bytesSend = 0;
+		c.state = SENDING;
+		return ;
 	}
+	c.response.append(buffer, n);
+	c.lastActivity = time(NULL);
 }
 
 void Server::initSockets()
