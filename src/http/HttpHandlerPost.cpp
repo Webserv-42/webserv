@@ -41,18 +41,62 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
         return (cgiResponse);
     
     std::string uploadDir = loc->upload_store;
-    static int fileCounter = 0;
+    std::string body = req.getBody();
+    std::string filename = "";
     
+    // 1. Intentamos leer si es un "multipart/form-data" para sacar el nombre y el archivo real
+    std::map<std::string, std::string> headers = req.getHeaders();
+    if (headers.find("Content-Type") != headers.end() && headers["Content-Type"].find("multipart/form-data") != std::string::npos)
+    {
+        // Buscamos el nombre del archivo en la etiqueta: filename="nombre.jpg"
+        size_t filenamePos = body.find("filename=\"");
+        if (filenamePos != std::string::npos)
+        {
+            filenamePos += 10; // Saltamos los 10 caracteres de: filename="
+            size_t filenameEnd = body.find("\"", filenamePos);
+            if (filenameEnd != std::string::npos)
+                filename = body.substr(filenamePos, filenameEnd - filenamePos);
+        }
+        
+        // Buscamos dónde termina el "papel de regalo" y empieza el archivo binario real
+        // Siempre hay un salto de línea doble (\r\n\r\n) antes de la foto o archivo.
+        size_t contentStart = body.find("\r\n\r\n");
+        if (contentStart != std::string::npos)
+        {
+            contentStart += 4; // Saltamos esos 4 bytes invisibles de los saltos de línea
+            
+            // Buscamos el final del archivo (justo antes del texto de cierre o "boundary")
+            size_t contentEnd = body.find("\r\n------", contentStart);
+            if (contentEnd == std::string::npos)
+                contentEnd = body.find("\r\n--", contentStart);
+                
+            if (contentEnd != std::string::npos)
+            {
+                // Recortamos el cuerpo para quedarnos SOLO con los datos puros
+                body = body.substr(contentStart, contentEnd - contentStart);
+            }
+        }
+    }
+    
+    // 2. Si no pudimos encontrar un nombre (o no era multipart), usamos el tiempo para no chocar
+    if (filename.empty())
+    {
+        std::stringstream ss;
+        ss << "uploaded_" << time(NULL) << ".bin";
+        filename = ss.str();
+    }
+    
+    // 3. Juntamos la carpeta con el nombre (Ej: www/uploads/ + mi_foto.jpg)
     std::stringstream urlBuilder; 
-    urlBuilder << uploadDir << (uploadDir[uploadDir.length() - 1] == '/' ? "" : "/") << "uploaded_" << fileCounter << ".bin";
+    urlBuilder << uploadDir << (uploadDir[uploadDir.length() - 1] == '/' ? "" : "/") << filename;
     std::string fullPath = urlBuilder.str();
     
-    fileCounter++; 
+    // 4. Guardamos el archivo final limpio
     std::ofstream outFile(fullPath.c_str(), std::ios::binary);
     if (!outFile.is_open())
         return (buildErrorResponse(500, &serverConf, loc)); 
     
-    outFile << req.getBody(); 
+    outFile << body; 
     outFile.close();
     
     std::string resBody = "El archivo se ha subido correctamente al servidor Webserv!\n";
