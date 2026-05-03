@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/28 10:31:14 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:56:52 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,38 +28,9 @@
         4.Iniciar el servidor (El loop comienza ahi)
 */
 
-// int main(int argc, char **argv) {
-//     std::string configFile = "conf/default.conf";
-
-//     if (argc == 2) {
-//         configFile = argv[1];
-//     } else if (argc > 2) {
-//         std::cerr << "Uso: ./webserv [archivo_de_configuracion]" << std::endl;
-//         return 1;
-//     }
-
-//     ConfigParser parser;
-//     if (!parser.parse(configFile)) {
-//         std::cerr << "Error crítico: No se pudo parsear " << configFile << std::endl;
-//         return 1;
-//     }
-
-//     Server webserv;
-//     try {
-//         webserv.init(parser.getServers());
-
-//         webserv.run();
-//     } catch (const std::exception& e) {
-//         std::cerr << "Excepción fatal en el servidor: " << e.what() << std::endl;
-//         return 1;
-//     }
-
-//     return 0;
-// }
-
 int main(int argc, char **argv)
 {
-    signal(SIGPIPE, SIG_IGN); // En caso de que un cliente cirre la conexion mientras el servidor esta enviando datos, el proceso muere.
+    signal(SIGPIPE, SIG_IGN);
 	srand(time(NULL));
     std::string configFile = "conf/default.conf";
 

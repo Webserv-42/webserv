@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 13:09:23 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/01 17:10:16 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:55:44 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,8 +149,6 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
 
     std::string method = req.getMethod();
     std::string uri = req.getUri();
-
-    std::cout << "[HTTP HANDLER] Procesando petición: " << method << " " << uri << std::endl;
 
 	std::string response;
         if (method == "GET")

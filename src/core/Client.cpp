@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:34:52 by alejagom          #+#    #+#             */
-/*   Updated: 2026/05/01 16:43:35 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/03 16:51:43 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,14 @@
 #include "ConfigData.hpp"
 
 Client::Client() : fd(-1), serverFd(-1), buffer(""), bytesSend(0),
-                   ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)), keepAlive(false) {}
-Client::~Client() {}
+                   ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)), keepAlive(false) 
+{
+	
+}
+Client::~Client() 
+{
+	
+}
 
 void    Server::handleClient(int clientfd)
 {
@@ -207,6 +213,5 @@ void Server::removeClient(int fd)
             break;
         }
     }
-    std::cout << "[CORE] Cliente eliminado: " << fd << std::endl;
 }
 

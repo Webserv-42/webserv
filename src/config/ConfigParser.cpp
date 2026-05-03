@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:17:30 by gafreire          #+#    #+#             */
-/*   Updated: 2026/04/30 11:01:55 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/03 17:08:27 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,8 +63,8 @@ std::vector<std::string> ConfigParser::tokenize(const std::string& line) {
 
 bool ConfigParser::parseServerDirective(const std::vector<std::string>& tokens,
 										ServerConfig& server) {
-	// Safety: a directive needs at least 2 tokens (key + value)
-	if (tokens.size() < 2) {
+	if (tokens.size() < 2) 
+	{
 		std::cerr << "[CONFIG ERROR] Incomplete directive in server block" << std::endl;
 		return false;
 	}
@@ -75,25 +75,27 @@ bool ConfigParser::parseServerDirective(const std::vector<std::string>& tokens,
 		// Convert port string → int
 		// atoi() returns 0 if conversion fails, which is not a valid port
 		server.port = std::atoi(tokens[1].c_str());
-		if (server.port <= 0 || server.port > 65535) {
+		if (server.port <= 0 || server.port > 65535) 
+		{
 			std::cerr << "[CONFIG ERROR] Invalid port: " << tokens[1] << std::endl;
 			return false;
 		}
 	}
-	else if (key == "server_name") {
+	else if (key == "server_name")
 		server.serverName = tokens[1];
-	}
-	else if (key == "host") {
+	else if (key == "host")
 		server.host = tokens[1];
-	}
-	else if (key == "client_max_body_size") {
+	else if (key == "client_max_body_size") 
+	{
 		server.clientMaxBodySize = std::atol(tokens[1].c_str());
-		if (server.clientMaxBodySize <= 0) {
+		if (server.clientMaxBodySize <= 0) 
+		{
 			std::cerr << "[CONFIG ERROR] Invalid client_max_body_size: " << tokens[1] << std::endl;
 			return false;
 		}
 	}
-	else if (key == "error_page") {
+	else if (key == "error_page") 
+	{
 		// Format: error_page 404 /errors/404.html
 		if (tokens.size() < 3) {
 			std::cerr << "[CONFIG ERROR] error_page requires a code and a path" << std::endl;
@@ -103,11 +105,9 @@ bool ConfigParser::parseServerDirective(const std::vector<std::string>& tokens,
 		// to all locations that don't have their own
 		int code = std::atoi(tokens[1].c_str());
 		server.errorPages[code] = tokens[2];
-		std::cout << "[CONFIG] server error_page " << tokens[1] << " -> " << tokens[2] << std::endl;
 	}
-	else {
+	else
 		std::cerr << "[CONFIG WARNING] Unknown directive in server: " << key << std::endl;
-	}
 
 	return true;
 }
@@ -170,11 +170,13 @@ bool ConfigParser::parseLocationDirective(const std::vector<std::string>& tokens
 }
 
 bool ConfigParser::validateServer(const ServerConfig& server) {
-	if (server.port <= 0 || server.port > 65535) {
+	if (server.port <= 0 || server.port > 65535) 
+	{
 		std::cerr << "[CONFIG ERROR] Server without a valid port" << std::endl;
 		return false;
 	}
-	if (server.locations.empty()) {
+	if (server.locations.empty()) 
+	{
 		std::cerr << "[CONFIG ERROR] Server without any location" << std::endl;
 		return false;
 	}
@@ -203,8 +205,6 @@ bool ConfigParser::parse(const std::string& filename) {
 		return false;
 	}
 
-	std::cout << "[CONFIG] Parsing: " << filename << std::endl;
-
 	// --- State machine variables ---
 	ParseState state = STATE_GLOBAL;	// We start outside any block
 	ServerConfig currentServer;			// The server currently being built
@@ -219,7 +219,8 @@ bool ConfigParser::parse(const std::string& filename) {
 	currentServer.clientMaxBodySize = 1048576; // 1MB default
 
 	// --- Step 2: Read line by line ---
-	while (std::getline(file, line)) {
+	while (std::getline(file, line)) 
+	{
 		lineNum++;
 
 		// 2a. Trim whitespace
@@ -240,7 +241,8 @@ bool ConfigParser::parse(const std::string& filename) {
 			continue;
 
 		if (state == STATE_GLOBAL) {
-			if (tokens[0] == "server" && tokens.size() >= 2 && tokens[1] == "{") {
+			if (tokens[0] == "server" && tokens.size() >= 2 && tokens[1] == "{") 
+			{
 				// Entering a server block
 				state = STATE_SERVER;
 
@@ -251,8 +253,6 @@ bool ConfigParser::parse(const std::string& filename) {
 				currentServer.serverName = "";
 				currentServer.clientMaxBodySize = 1048576;
 				currentServer.errorPages.clear();
-
-				std::cout << "[CONFIG] Server block opened (line " << lineNum << ")" << std::endl;
 			}
 			// Special case: "server" alone on a line, "{" on the next
 			else if (tokens[0] == "server" && tokens.size() == 1) {
@@ -266,7 +266,8 @@ bool ConfigParser::parse(const std::string& filename) {
 				currentServer.clientMaxBodySize = 1048576;
 				currentServer.errorPages.clear();
 			}
-			else if (tokens[0] == "{") {
+			else if (tokens[0] == "{") 
+			{
 				// Orphan "{" at global level → we're already opening a server
 				// (case where "server" was on the previous line)
 				// State is already STATE_SERVER, do nothing
@@ -299,8 +300,6 @@ bool ConfigParser::parse(const std::string& filename) {
 				}
 				_servers.push_back(currentServer);
 				state = STATE_GLOBAL;
-				std::cout << "[CONFIG] Server block closed -> port "
-						  << currentServer.port << std::endl;
 			}
 			// Detect "location /path/ {"
 			else if (tokens[0] == "location") {
@@ -324,8 +323,6 @@ bool ConfigParser::parse(const std::string& filename) {
 					currentLocation.path = tokens[1];
 					currentLocation.autoindex = false;
 					state = STATE_LOCATION;
-					std::cout << "[CONFIG]   Location opened: "
-							  << currentLocation.path << std::endl;
 				}
 			}
 			// Otherwise it's a server directive
@@ -364,10 +361,6 @@ bool ConfigParser::parse(const std::string& filename) {
 		std::cerr << "[CONFIG ERROR] No server defined in " << filename << std::endl;
 		return false;
 	}
-
-	// --- Step 4: Summary ---
-	std::cout << "\n[CONFIG] ✅ Parsing complete — " << _servers.size()
-			  << " server(s) loaded:" << std::endl;
 	for (size_t i = 0; i < _servers.size(); i++) {
 		std::cout << "  Server " << i << ": " << _servers[i].host
 				  << ":" << _servers[i].port
