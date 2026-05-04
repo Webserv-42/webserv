@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:25 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/01 16:39:22 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/04 13:52:46 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,14 @@
 
 /*
     handleGet:
-        Lógica maestra de peticiones GET
+        master logic for GET requests
         1. Validar Permisos y obtener la ruta base
-        2. Comprobar si la ruta es un Directorio
-        3. Ejecutar CGI (Si coincide la extensión)
-        4. Servir Archivo Estático
+        2. validate permissions and obtain the base path
+        3. run CGI (If the extension matches)
+        4. serve static file
 */
-std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd)
+std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverConf, 
+    const std::string& uri, int* cgiPipeFd, int* cgiWriteFd)
 {
     std::string filePath;
     const LocationConfig* loc = matchLocation(uri, serverConf);
@@ -30,7 +31,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
     {
         if (!isMethodAllowed(loc, req.getMethod()))
             return (buildErrorResponse(405, &serverConf, loc));
-        filePath = loc->root + uri;
+        filePath = buildLocationPath(uri, loc);
     } 
     else 
     {
@@ -46,7 +47,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
         if (handled) 
             return (dirResponse);
     }
-    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd);
+    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd, cgiWriteFd);
     if (!cgiResponse.empty()) 
         return (cgiResponse);
     return (serveStaticFile(filePath, serverConf, loc));
@@ -54,9 +55,9 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
 
 /*
     isMethodAllowed:
-        1. Revisa si el bloque Location tiene una lista de métodos permitidos
-        2. Si la lista está vacía, devuelve true por defecto
-        3. Si la lista existe, devuelve true solo si encuentra el método actual en ella
+        1. check if the Location block has a list of allowed methods
+        2. if the list is empty, it returns true by default.
+        3. if the list exists, it returns true only if it finds the current method in it.
 */
 bool HttpHandler::isMethodAllowed(const LocationConfig* loc, const std::string& method)
 {
@@ -70,11 +71,11 @@ bool HttpHandler::isMethodAllowed(const LocationConfig* loc, const std::string& 
 
 /*
     processDirectory:
-        1. Verifica si el directorio tiene un archivo 'index' configurado
-        2. Si el 'index' existe físicamente, actualiza la variable 'filePath' por referencia 
-           para que el resto del código lo trate como una petición de archivo normal
-        3. Si no hay 'index' pero 'autoindex' está activo, genera un listado HTML interactivo de la carpeta
-        4. Retorna true si ya ha fabricado la respuesta final, o false si delegó en servir el archivo index
+        1. check if the directory has an 'index' file configured
+        2. if the 'index' physically exists, update the 'filePath' variable by reference
+            so that the rest of the code treats it as a normal file request
+        3. if there is no 'index' but 'autoindex' is active, it generates an interactive HTML listing of the folder
+        4. returns true if it has already generated the final response, or false if it delegated serving the index file
 */
 bool HttpHandler::processDirectory(std::string& filePath, const std::string& uri, const LocationConfig* loc, std::string& outResponse)
 {
@@ -105,12 +106,12 @@ bool HttpHandler::processDirectory(std::string& filePath, const std::string& uri
 
 /*
     serveCgiIfMatch:
-        1. Comprueba si el CGI está habilitado para esta ruta (comprobando loc->cgiExtension)
-        2. Mira si las últimas letras del archivo solicitado coinciden con la extensión (ej. .py)
-        3. Si hay coincidencia, instancia la clase CgiHandler pasándole el control absoluto
-        4. Si es CGI, guarda el FD de lectura en cgiPipeFd y devuelve un string vacío para su manejo asíncrono
+        1. check if CGI is enabled for this path (by checking loc->cgiExtension)
+        2. check if the last letters of the requested file match the extension (e.g., .py)
+        3. if there is a match, instantiate the CgiHandler class, passing it absolute control.
+        4. if it's CGI, it stores the read FD in cgiPipeFd and returns an empty string for asynchronous handling.
 */
-std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc, int* cgiPipeFd)
+std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpRequest& req, const LocationConfig* loc, int* cgiPipeFd, int* cgiWriteFd)
 {
     if (loc == NULL || loc->cgiExtension.empty()) 
         return ("");
@@ -123,7 +124,7 @@ std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpReques
             scriptToRun = filePath;
         else 
             scriptToRun = loc->cgiPath;
-       int pipeFd = cgi.executeCgi(scriptToRun, filePath, req);
+       int pipeFd = cgi.executeCgi(scriptToRun, filePath, req, cgiWriteFd);
         if (cgiPipeFd != NULL)
             *cgiPipeFd = pipeFd;
         return ("");
@@ -133,15 +134,10 @@ std::string HttpHandler::serveCgiIfMatch(const std::string& filePath, HttpReques
 
 std::string HttpHandler::serveStaticFile(const std::string& filePath, const ServerConfig& serverConf, const LocationConfig* loc)
 {
-    std::ifstream file(filePath.c_str());
-    if (!file.is_open()) 
-        return (buildErrorResponse(404, &serverConf, loc));
-    
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string content = buffer.str();        
-    std::string contentType = getMimeType(filePath);    
-    
+    std::string content = readFileToString(filePath);
+    if (content.empty())
+        return (buildErrorResponse(404, &serverConf, loc));    
+    std::string contentType = getMimeType(filePath);
     std::stringstream response;
     response << "HTTP/1.1 200 OK\r\n"
              << "Content-Type: " << contentType << "\r\n"

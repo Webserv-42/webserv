@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:39 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/03 16:54:59 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/04 18:45:39 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,26 @@
 
 /*
     handlePost:
-        1. Busca la configuración de la ruta para ver si existe y permite POST
-        2. Verifica si la directiva 'upload_enable' está activada. Si no, devuelve 403 Forbidden
-        3. Construye una ruta única de destino para el archivo usando un contador estático
-        4. Abre el archivo en el disco duro de forma binaria
-        5. Escribe el cuerpo entero de la petición HTTP (req.getBody()) en el archivo
-        6. Si todo sale bien, devuelve un código 201 Created confirmando la creación
+        1. check the route configuration to see if it exists and allows POST
+        2. check if the 'upload_enable' directive is enabled. If not, return 403 Forbidden.
+        3. build a unique destination path for the file using a static counter
+        4. open the file on the hard drive in binary format
+        5. write the entire body of the HTTP request (req.getBody()) to the file
+        6. if everything goes well, it returns a 201 Created code confirming the creation
 */
-std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd)
+std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& serverConf, const std::string& uri, int* cgiPipeFd, int* cgiWriteFd)
 {
     if (req.getBody().length() > (size_t)serverConf.clientMaxBodySize) 
         return (buildErrorResponse(413, &serverConf, NULL));
     
     const LocationConfig* loc = matchLocation(uri, serverConf);
+    if (loc != NULL && !isMethodAllowed(loc, req.getMethod()))
+        return (buildErrorResponse(405, &serverConf, loc));
     if (loc == NULL || loc->upload_enable == false) 
         return (buildErrorResponse(403, &serverConf, loc)); 
        
-    std::string filePath = loc->root + uri;
-    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd);
+    std::string filePath = buildLocationPath(uri, loc);
+    std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd, cgiWriteFd);
     if (!cgiResponse.empty() || (cgiPipeFd != NULL && *cgiPipeFd != -1)) 
         return (cgiResponse);
     
@@ -74,12 +76,8 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
     std::stringstream urlBuilder; 
     urlBuilder << uploadDir << (uploadDir[uploadDir.length() - 1] == '/' ? "" : "/") << filename;
     std::string fullPath = urlBuilder.str();
-    std::ofstream outFile(fullPath.c_str(), std::ios::binary);
-    if (!outFile.is_open())
-        return (buildErrorResponse(500, &serverConf, loc)); 
-    
-    outFile << body; 
-    outFile.close();
+    if (!saveUploadedFile(fullPath, body))
+        return (buildErrorResponse(500, &serverConf, loc));
     
     std::string resBody = "El archivo se ha subido correctamente al servidor Webserv!\n";
     std::stringstream response;
