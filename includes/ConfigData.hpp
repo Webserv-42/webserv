@@ -32,6 +32,8 @@ struct LocationConfig {
     std::string cgiPath;                            // Ruta al binario del CGI ej: "/usr/bin/php-cgi"
     bool upload_enable;                             // ¿Se permite guardar archivos desde POST?
     std::string upload_store;                       // "www/uploads" -> Ruta física donde se irán volcando
+    int redirectCode;                               // 0 = sin redirección, 301 o 302
+    std::string redirectUrl;                        // URL destino de la redirección
 };
 
 // Contrato para el servidor virtual

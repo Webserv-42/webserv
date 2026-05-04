@@ -50,7 +50,7 @@ private:
     
     std::vector<pollfd> _fds; //lista de todos los FDs (servidor + clientes)
     std::map<int, Client> _clients; //guarda estado de cada cliente
-    std::map<int, ServerConfig*> _socketToConfig; //múltiples puertos múltiples servidores
+    std::map<int, std::vector<ServerConfig*> > _socketToConfigs; //múltiples puertos múltiples servidores
 
     void acceptClient(int serverFd); //crea cliente nuevo
     void handleClient(int clientFd); //recv+ buffer

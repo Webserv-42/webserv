@@ -53,7 +53,7 @@ void Server::acceptClient(int serverFd)
 
 	client.fd = client_fd;
 	client.serverFd = serverFd;
-    client.config = _socketToConfig[serverFd]; // <--- NUEVO: Le decimos qué servidor usó para conectarse
+    client.config = _socketToConfigs[serverFd][0]; // Usa el primero por defecto
 	_clients[client_fd] = client;
 }
 
@@ -94,7 +94,7 @@ void Server::run()
         {
             if (_fds[i].revents & POLLIN)
             {
-                if (_socketToConfig.count(_fds[i].fd))
+                if (_socketToConfigs.count(_fds[i].fd))
                     acceptClient(_fds[i].fd);
 		        else if (_cgiPipeToClient.count(_fds[i].fd))
 			        handleCgiResponse(_fds[i].fd);
@@ -160,8 +160,18 @@ void	Server::handleCgiResponse(int pipeFd)
 
 void Server::initSockets()
 {
+    std::map<int, int> portToSocket; // Para no duplicar puertos
+
     for (size_t i = 0; i < _configs.size(); i++)
     {
+        int port = _configs[i].port;
+        if (portToSocket.find(port) != portToSocket.end())
+        {
+            int server_fd = portToSocket[port];
+            _socketToConfigs[server_fd].push_back(&_configs[i]);
+            continue;
+        }
+
         int server_fd;
         sockaddr_in addr;
         pollfd pfd;
@@ -203,7 +213,8 @@ void Server::initSockets()
         pfd.events = POLLIN;
         pfd.revents = 0;
         _fds.push_back(pfd);
-        _socketToConfig[server_fd] = &_configs[i];
+        _socketToConfigs[server_fd].push_back(&_configs[i]);
+        portToSocket[port] = server_fd;
         std::cout << "Listen on port " << _configs[i].port << std::endl;
     }
 }

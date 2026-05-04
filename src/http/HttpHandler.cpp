@@ -151,6 +151,28 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
     std::string uri = req.getUri();
 
 	std::string response;
+    
+    // --- Comprobar redirección antes de procesar el método ---
+    const LocationConfig* loc = matchLocation(uri, serverConf);
+    if (loc != NULL && loc->redirectCode != 0)
+    {
+        std::stringstream ss;
+        ss << loc->redirectCode;
+        std::string statusText;
+        if (loc->redirectCode == 301)
+            statusText = "301 Moved Permanently";
+        else
+            statusText = "302 Found";
+        std::string body = "<html><body><h1>" + statusText + "</h1><p>Redirecting to <a href=\"" + loc->redirectUrl + "\">" + loc->redirectUrl + "</a></p></body></html>";
+        std::stringstream redir;
+        redir << "HTTP/1.1 " << statusText << "\r\n"
+              << "Location: " << loc->redirectUrl << "\r\n"
+              << "Content-Type: text/html\r\n"
+              << "Content-Length: " << body.length() << "\r\n\r\n"
+              << body;
+        return redir.str();
+    }
+
         if (method == "GET")
         return handleGet(req, serverConf, uri, cgiPipeFd);
     else if (method == "POST")
