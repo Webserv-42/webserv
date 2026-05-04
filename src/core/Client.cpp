@@ -117,14 +117,36 @@ void Server::ProcessRequest(Client& c)
         cookie = c.buffer.substr(pos + 8, end - (pos + 8));
 	}
 	c.cookie = cookie;
-	ServerConfig *config = _socketToConfig[c.serverFd];
 	
 	HttpRequest req;
     req.parse(c.buffer);
     
+    // --- Server Name Routing ---
+    std::vector<ServerConfig*> configs = _socketToConfigs[c.serverFd];
+    ServerConfig *config = configs[0]; // por defecto el primero
+    
+    std::map<std::string, std::string> headers = req.getHeaders();
+    if (headers.find("Host") != headers.end())
+    {
+        std::string host = headers["Host"];
+        // quitamos el puerto si viene (ej. example.com:8080)
+        size_t colon = host.find(':');
+        if (colon != std::string::npos)
+            host = host.substr(0, colon);
+            
+        for (size_t i = 0; i < configs.size(); i++)
+        {
+            if (configs[i]->serverName == host)
+            {
+                config = configs[i];
+                break;
+            }
+        }
+    }
+    c.config = config; // actualizamos el cliente con el config correcto
+    
     // --- Comprobar Keep-Alive de forma segura ---
     c.keepAlive = false;
-    std::map<std::string, std::string> headers = req.getHeaders();
     if (headers.find("Connection") != headers.end()) 
     {
         std::string connStr = headers["Connection"];
