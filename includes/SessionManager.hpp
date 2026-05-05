@@ -6,6 +6,11 @@
 #include <cstdlib>
 #include <sstream>
 
+/*
+	SessionManager:
+		simple in-memory session storage that issues session IDs
+		and validates them
+*/
 class SessionManager
 {
 	private:

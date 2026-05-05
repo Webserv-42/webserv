@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 15:22:35 by alejagom          #+#    #+#             */
-/*   Updated: 2026/05/01 16:40:11 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 17:39:39 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,11 @@
 #include "ConfigData.hpp"
 #include "HttpRequest.hpp"
 
+/*
+    client:
+        represents a connected client and its request/response state
+        stores buffers, parsing state, timeouts, and CGI I/O info.
+*/
 enum ClientState
 {
     READING_HEADERS,
@@ -29,30 +34,28 @@ enum ClientState
 
 class Client
 {
-public:
-    int         fd;		// File descriptor del cliente
-    int		serverFd;	// que servidor acepto la conexión
-    std::string buffer;		// Acumula lo que llega por recv
-    std::string	cookie;		// Variable para las cookies.
-    std::string response;	// La respuesta construida
-    size_t	bytesSend;	// Tiempo que lleva enviando datos
-    size_t	ContLength;	// Header Content-Lenght
-    ClientState	state;		// Estados para el HTTP
-    HttpRequest	request;	// Variable para el request (GABRIEL).
-    time_t      lastActivity;
-    bool        keepAlive;
-
-    // Client();
-    // Client(int fd);
-
-    // ~Client();
-    Client();
-    Client(int fd);
-    ~Client();
-
-    const ServerConfig* config;
-
+    public:
+        Client();
+        Client(int fd);
+        ~Client();
+        
+        int         fd;
+        int		serverFd;
+        std::string buffer;
+        std::string	cookie;
+        std::string response;
+        size_t	bytesSend;
+        size_t	ContLength;
+        ClientState	state;
+        HttpRequest	request;
+        time_t      lastActivity;
+        bool        keepAlive;
+        std::string cgiBody;
+        size_t      cgiBodySent;
+        int         cgiWriteFd;
+        
+        const ServerConfig* config;
+    
 };
-
 
 #endif

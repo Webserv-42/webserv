@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 12:05:31 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/01 16:21:34 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 17:39:59 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,11 @@
 #include "ConfigData.hpp"
 #include "HttpRequest.hpp"
 
+/*
+	CgiHandler:
+		executes CGI scripts using fork/exec with pipes for stdin/stdout
+		builds the CGI environment from the current request
+*/
 class CgiHandler
 {
 	private:
@@ -32,8 +37,8 @@ class CgiHandler
 		CgiHandler();
 		~CgiHandler();
 
-		int executeCgi(const std::string &executablePath, const std::string &scriptPath, 
-			const HttpRequest &req);
+		int executeCgi(const std::string &executablePath, const std::string &scriptPath,
+			const HttpRequest &req, int *writeFdOut);
 };
 
 #endif
