@@ -54,7 +54,7 @@ void Server::acceptClient(int serverFd)
 
     client.fd = client_fd;
     client.serverFd = serverFd;
-    client.config = _socketToConfig[serverFd];
+    client.config = _socketToConfigs[serverFd][0];
     _clients[client_fd] = client;
 }
 
@@ -65,8 +65,18 @@ void Server::acceptClient(int serverFd)
 */
 void Server::initSockets()
 {
+    std::map<int, int> portToSocket;
+
     for (size_t i = 0; i < _configs.size(); i++)
     {
+        int port = _configs[i].port;
+        if (portToSocket.find(port) != portToSocket.end())
+        {
+            int server_fd = portToSocket[port];
+            _socketToConfigs[server_fd].push_back(&_configs[i]);
+            continue;
+        }
+
         int server_fd;
         sockaddr_in addr;
         pollfd pfd;
@@ -106,7 +116,8 @@ void Server::initSockets()
         pfd.events = POLLIN;
         pfd.revents = 0;
         _fds.push_back(pfd);
-        _socketToConfig[server_fd] = &_configs[i];
+        _socketToConfigs[server_fd].push_back(&_configs[i]);
+        portToSocket[port] = server_fd;
         std::cout << "Listen on port " << _configs[i].port << std::endl;
     }
 }

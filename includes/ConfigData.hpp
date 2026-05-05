@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:20 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/05 17:41:23 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 19:05:37 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ struct LocationConfig {
     std::string cgiPath;                            // Path to CGI binary, e.g. "/usr/bin/php-cgi"
     bool upload_enable;                             // Allow saving files from POST?
     std::string upload_store;                       // "www/uploads" -> Physical path for uploads
+    int redirectCode;                               // 0 = no redirect, 301 or 302
+    std::string redirectUrl;                        // Redirect destination URL
 };
 
 // Contract for the virtual server

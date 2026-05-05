@@ -22,7 +22,6 @@ void Server::handleSigint(int)
 {
 	_stop = 1;
 }
-
 /*
 	init:
 		1. save the server settings

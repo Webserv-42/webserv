@@ -35,10 +35,9 @@ class Server
         HttpHandler _httpHandler;
         static volatile sig_atomic_t _stop;
     
-        
         std::vector<pollfd> _fds;
         std::map<int, Client> _clients;
-        std::map<int, ServerConfig*> _socketToConfig;
+        std::map<int, std::vector<ServerConfig*> > _socketToConfigs;
     
         void acceptClient(int serverFd);
         void handleClient(int clientFd);

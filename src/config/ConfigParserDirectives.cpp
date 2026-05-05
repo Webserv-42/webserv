@@ -112,6 +112,16 @@ bool ConfigParser::parseLocationDirective(const std::vector<std::string>& tokens
         int code = std::atoi(tokens[1].c_str());
         location.errorPages[code] = tokens[2];
     }
+    else if (key == "return")
+    {
+        if (tokens.size() < 3)
+        {
+            std::cerr << "[CONFIG ERROR] return requires a code and a URL" << std::endl;
+            return (false);
+        }
+        location.redirectCode = std::atoi(tokens[1].c_str());
+        location.redirectUrl = tokens[2];
+    }
     else
         std::cerr << "[CONFIG WARNING] Unknown directive in location: " << key << std::endl;
 

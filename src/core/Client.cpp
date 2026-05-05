@@ -16,10 +16,10 @@ Client::Client() : fd(-1), serverFd(-1), buffer(""), bytesSend(0),
                    ContLength(0), state(READING_HEADERS), lastActivity(time(NULL)), keepAlive(false),
                    cgiBody(""), cgiBodySent(0), cgiWriteFd(-1)
 {
-	
-}
-Client::~Client() 
-{
-	
+
 }
 
+Client::~Client()
+{
+
+}

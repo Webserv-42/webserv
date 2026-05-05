@@ -147,11 +147,41 @@ void Server::ProcessRequest(Client& c)
         cookie = c.buffer.substr(pos + 8, end - (pos + 8));
     }
     c.cookie = cookie;
-    ServerConfig *config = _socketToConfig[c.serverFd];
+    std::vector<ServerConfig*> configs;
+    std::map<int, std::vector<ServerConfig*> >::iterator it = _socketToConfigs.find(c.serverFd);
+    if (it != _socketToConfigs.end())
+        configs = it->second;
+    const ServerConfig *config = c.config;
+    if (!configs.empty())
+        config = configs[0];
 
     HttpRequest req;
     req.parse(c.buffer);
-
+    if (config != NULL && !configs.empty())
+    {
+        std::map<std::string, std::string> headers = req.getHeaders();
+        if (headers.find("Host") != headers.end())
+        {
+            std::string host = headers["Host"];
+            size_t colon = host.find(':');
+            if (colon != std::string::npos)
+                host = host.substr(0, colon);
+            for (size_t i = 0; i < configs.size(); i++)
+            {
+                if (configs[i]->serverName == host)
+                {
+                    config = configs[i];
+                    break;
+                }
+            }
+        }
+    }
+    if (config == NULL)
+    {
+        c.state = DONE;
+        return ;
+    }
+    c.config = config;
     c.keepAlive = false;
     std::map<std::string, std::string> headers = req.getHeaders();
     if (headers.find("Connection") != headers.end())

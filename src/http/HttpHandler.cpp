@@ -41,10 +41,23 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
     std::string uri = req.getUri();
 
 	std::string response;
-	if (method == "GET")
-		return (handleGet(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
-	else if (method == "POST")
-		return (handlePost(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
+    const LocationConfig* loc = matchLocation(uri, serverConf);
+    if (loc != NULL && loc->redirectCode != 0)
+    {
+        std::string statusText = (loc->redirectCode == 301) ? "301 Moved Permanently" : "302 Found";
+        std::string body = "<html><body><h1>" + statusText + "</h1><p>Redirecting to <a href=\"" + loc->redirectUrl + "\">" + loc->redirectUrl + "</a></p></body></html>";
+        std::stringstream redir;
+        redir << "HTTP/1.1 " << statusText << "\r\n"
+              << "Location: " << loc->redirectUrl << "\r\n"
+              << "Content-Type: text/html\r\n"
+              << "Content-Length: " << body.length() << "\r\n\r\n"
+              << body;
+        return (redir.str());
+    }
+    if (method == "GET")
+        return (handleGet(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
+    else if (method == "POST")
+        return (handlePost(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
     else if (method == "DELETE")
         return (handleDelete(req, serverConf, uri));
 	else

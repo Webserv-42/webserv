@@ -54,6 +54,8 @@ void ConfigParser::initLocationDefaults(LocationConfig& location, const std::str
 	location = LocationConfig();
 	location.path = path;
 	location.autoindex = false;
+	location.redirectCode = 0;
+	location.redirectUrl = "";
 }
 
 /*
@@ -78,14 +80,14 @@ void ConfigParser::applyServerErrorPages(ServerConfig& server)
 */
 void ConfigParser::printSummary() const
 {
-	for (size_t i = 0; i < _servers.size(); i++) 
+	for (size_t i = 0; i < _servers.size(); i++)
 	{
 		std::cout << "  Server " << i << ": " << _servers[i].host
 				  << ":" << _servers[i].port
 				  << " (name=" << _servers[i].serverName
 				  << ", max_body=" << _servers[i].clientMaxBodySize
 				  << ")" << std::endl;
-		for (size_t j = 0; j < _servers[i].locations.size(); j++) 
+		for (size_t j = 0; j < _servers[i].locations.size(); j++)
 		{
 			const LocationConfig& loc = _servers[i].locations[j];
 			std::cout << "    Location " << loc.path
@@ -95,7 +97,7 @@ void ConfigParser::printSummary() const
 			if (!loc.cgiExtension.empty())
 				std::cout << ", cgi=" << loc.cgiExtension;
 			std::cout << ", methods=[";
-			for (size_t k = 0; k < loc.allowedMethods.size(); k++) 
+			for (size_t k = 0; k < loc.allowedMethods.size(); k++)
 			{
 				if (k > 0) std::cout << " ";
 				std::cout << loc.allowedMethods[k];

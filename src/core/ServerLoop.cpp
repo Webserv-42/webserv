@@ -58,7 +58,7 @@ void Server::run()
         {
             if (_fds[i].revents & (POLLIN | POLLHUP | POLLERR))
             {
-                if (_socketToConfig.count(_fds[i].fd))
+                if (_socketToConfigs.count(_fds[i].fd))
                     acceptClient(_fds[i].fd);
                 else if (_cgiPipeToClient.count(_fds[i].fd))
                     handleCgiResponse(_fds[i].fd);
