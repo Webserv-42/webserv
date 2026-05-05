@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CGI POST</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+    </div>
+    <header>
+      <h1>CGI POST</h1>
+      <div class="subtitle">Send a POST body to /cgi-bin/test.py (may return 403 until allowed).</div>
+    </header>
+    <div class="card">
+      <textarea id="cgiBody" rows="4">hello</textarea>
+      <button onclick="runFetch('POST','/cgi-bin/test.py', document.getElementById('cgiBody').value)">Run CGI POST</button>
+      <div id="log" class="log">Log output will appear here...</div>
+    </div>
+  </div>
+  <script src="/tests/tests.js"></script>
+</body>
+</html>

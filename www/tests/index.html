@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Webserv Test Menu</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Webserv Test Menu</h1>
+      <div class="subtitle">Choose a test page and run each check visually.</div>
+      <div class="pill">Base URL: http://localhost:8080</div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>GET tests</h2>
+        <div class="menu">
+          <a href="/tests/get-root.html">GET / <span>index</span></a>
+          <a href="/tests/get-404.html">GET /nonexistent.html <span>404</span></a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>POST /uploads</h2>
+        <div class="menu">
+          <a href="/tests/post-upload.html">POST text body</a>
+          <a href="/tests/upload-file.html">Upload file (multipart)</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>DELETE</h2>
+        <div class="menu">
+          <a href="/tests/delete.html">DELETE /uploads/&lt;file&gt;</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>CGI</h2>
+        <div class="menu">
+          <a href="/tests/cgi-get.html">CGI GET</a>
+          <a href="/tests/cgi-post.html">CGI POST</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Limits & routing</h2>
+        <div class="menu">
+          <a href="/tests/max-body.html">client_max_body_size</a>
+          <a href="/tests/host-routing.html">Host routing</a>
+          <a href="/tests/redirect.html">Redirect test</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

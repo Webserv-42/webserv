@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DELETE /uploads/</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+      <a href="/uploads/" target="_blank">Open /uploads/</a>
+    </div>
+    <header>
+      <h1>DELETE /uploads/&lt;file&gt;</h1>
+      <div class="subtitle">Paste the filename returned by POST.</div>
+    </header>
+    <div class="card">
+      <input id="deleteName" type="text" placeholder="uploaded_123.bin" />
+      <button onclick="goDelete('deleteName')">Delete</button>
+      <div id="log" class="log">Log output will appear here...</div>
+    </div>
+  </div>
+  <script src="/tests/tests.js"></script>
+</body>
+</html>

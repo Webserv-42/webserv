@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>client_max_body_size</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+      <a href="/uploads/" target="_blank">Open /uploads/</a>
+    </div>
+    <header>
+      <h1>client_max_body_size</h1>
+      <div class="subtitle">Upload a file larger than 1MB to trigger 413.</div>
+    </header>
+    <div class="card">
+      <input id="bigFileInput" type="file" />
+      <button onclick="uploadFile('bigFileInput')" class="secondary">Upload (expect 413)</button>
+      <div id="log" class="log">Log output will appear here...</div>
+    </div>
+  </div>
+  <script src="/tests/tests.js"></script>
+</body>
+</html>
