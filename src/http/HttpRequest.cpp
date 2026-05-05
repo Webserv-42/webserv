@@ -6,11 +6,12 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/14 16:46:20 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/03 17:25:47 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 19:46:00 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequest.hpp"
+#include <cctype>
 
 HttpRequest::HttpRequest()
 {
@@ -46,6 +47,88 @@ std::map<std::string, std::string> HttpRequest::getHeaders()const
 std::string HttpRequest::getBody() const
 {
     return (_body);
+}
+
+/*
+    toLower:
+        return a lowercase copy of the input string.
+*/
+static std::string toLower(const std::string& value)
+{
+    std::string out = value;
+    for (size_t i = 0; i < out.size(); ++i)
+        out[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(out[i])));
+    return (out);
+}
+
+/*
+    trimSpaces:
+        remove leading and trailing whitespace.
+*/
+static std::string trimSpaces(const std::string& value)
+{
+    size_t start = 0;
+    while (start < value.size() && std::isspace(static_cast<unsigned char>(value[start])))
+        ++start;
+    size_t end = value.size();
+    while (end > start && std::isspace(static_cast<unsigned char>(value[end - 1])))
+        --end;
+    return (value.substr(start, end - start));
+}
+
+/*
+    normalizeHeaderKey:
+        map common header names to canonical casing.
+*/
+static std::string normalizeHeaderKey(const std::string& key)
+{
+    std::string lowered = toLower(trimSpaces(key));
+    if (lowered == "host")
+        return ("Host");
+    if (lowered == "content-length")
+        return ("Content-Length");
+    if (lowered == "content-type")
+        return ("Content-Type");
+    if (lowered == "transfer-encoding")
+        return ("Transfer-Encoding");
+    if (lowered == "connection")
+        return ("Connection");
+    if (lowered == "cookie")
+        return ("Cookie");
+    return (trimSpaces(key));
+}
+
+/*
+    decodeChunkedBody:
+        decode a chunked transfer-encoded body into a plain string.
+*/
+static std::string decodeChunkedBody(const std::string& rawBody)
+{
+    std::string decoded;
+    size_t idx = 0;
+    while (idx < rawBody.size())
+    {
+        size_t lineEnd = rawBody.find("\r\n", idx);
+        if (lineEnd == std::string::npos)
+            return ("");
+        std::string sizeStr = rawBody.substr(idx, lineEnd - idx);
+        size_t semicolon = sizeStr.find(';');
+        if (semicolon != std::string::npos)
+            sizeStr = sizeStr.substr(0, semicolon);
+        if (sizeStr.empty())
+            return ("");
+        unsigned long size = std::strtoul(sizeStr.c_str(), NULL, 16);
+        idx = lineEnd + 2;
+        if (size == 0)
+            return (decoded);
+        if (idx + size + 2 > rawBody.size())
+            return ("");
+        decoded.append(rawBody.substr(idx, size));
+        if (rawBody.compare(idx + size, 2, "\r\n") != 0)
+            return ("");
+        idx += size + 2;
+    }
+    return (decoded);
 }
 
 void HttpRequest::parse(const std::string& raw_data)
@@ -110,8 +193,10 @@ void HttpRequest::parseHeaders(const std::string& raw_data, size_t& pos)
         size_t colon = header_line.find(":");
         if (colon != std::string::npos)
         {
-            std::string key   = header_line.substr(0, colon);
-            std::string value = header_line.substr(colon + 2);
+            std::string key = header_line.substr(0, colon);
+            std::string value = header_line.substr(colon + 1);
+            key = normalizeHeaderKey(key);
+            value = trimSpaces(value);
             _headers[key] = value;
         }
         pos = end_of_line + 2;
@@ -120,6 +205,17 @@ void HttpRequest::parseHeaders(const std::string& raw_data, size_t& pos)
 }
 void HttpRequest::parseBody(const std::string& raw_data, size_t& pos)
 {
+    if (_headers.find("Transfer-Encoding") != _headers.end())
+    {
+        std::string encoding = toLower(_headers["Transfer-Encoding"]);
+        if (encoding.find("chunked") != std::string::npos)
+        {
+            std::string rawBody = raw_data.substr(pos);
+            _body = decodeChunkedBody(rawBody);
+            _state = PARSING_COMPLETE;
+            return;
+        }
+    }
     if (_headers.find("Content-Length") == _headers.end())
     {
         _state = PARSING_COMPLETE;

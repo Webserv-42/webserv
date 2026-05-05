@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Host routing</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+    </div>
+    <header>
+      <h1>Host routing</h1>
+      <div class="subtitle">Browsers do not allow setting Host header via fetch.</div>
+    </header>
+    <div class="card">
+      <p>Run this in a terminal:</p>
+      <div class="log">curl -i -s -H "Host: example.com" http://localhost:8080/</div>
+    </div>
+  </div>
+</body>
+</html>

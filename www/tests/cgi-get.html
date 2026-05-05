@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CGI GET</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+    </div>
+    <header>
+      <h1>CGI GET</h1>
+      <div class="subtitle">Expect 200 OK from /cgi-bin/test.py.</div>
+    </header>
+    <div class="card">
+      <button onclick="runFetch('GET','/cgi-bin/test.py')">Run CGI GET</button>
+      <div id="log" class="log">Log output will appear here...</div>
+    </div>
+  </div>
+  <script src="/tests/tests.js"></script>
+</body>
+</html>

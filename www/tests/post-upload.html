@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POST /uploads/</title>
+  <link rel="stylesheet" href="/tests/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a href="/tests/index.html">Menu</a>
+      <a href="/uploads/" target="_blank">Open /uploads/</a>
+    </div>
+    <header>
+      <h1>POST /uploads/ (text)</h1>
+      <div class="subtitle">Expect 201 Created and a Location header.</div>
+    </header>
+    <div class="card">
+      <textarea id="postBody" rows="4">test body</textarea>
+      <button onclick="runFetch('POST','/uploads/', document.getElementById('postBody').value)">Send POST</button>
+      <div id="log" class="log">Log output will appear here...</div>
+    </div>
+  </div>
+  <script src="/tests/tests.js"></script>
+</body>
+</html>

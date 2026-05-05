@@ -2,13 +2,23 @@
 NAME            = webserv
 SOURCES         =  src/main.cpp \
 					src/core/Server.cpp \
+					src/core/ServerClient.cpp \
+					src/core/ServerClientUtils.cpp \
+					src/core/ServerLoop.cpp \
+					src/core/ServerSockets.cpp \
 					src/core/Client.cpp \
 					src/http/HttpRequest.cpp \
 					src/http/HttpHandler.cpp \
+					src/http/HttpHandlerError.cpp \
 					src/http/HttpHandlerGet.cpp \
 					src/http/HttpHandlerPost.cpp \
 					src/http/HttpHandlerDelete.cpp \
+					src/http/HttpHandlerUtils.cpp \
+					src/http/HttpHandlerSession.cpp \
 					src/config/ConfigParser.cpp \
+					src/config/ConfigParserUtils.cpp \
+					src/config/ConfigParserDirectives.cpp \
+					src/config/ConfigParserParse.cpp \
 					src/config/SessionManager.cpp \
 					src/config/CgiHandler.cpp
 
