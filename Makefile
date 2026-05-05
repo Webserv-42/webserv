@@ -3,6 +3,7 @@ NAME            = webserv
 SOURCES         =  src/main.cpp \
 					src/core/Server.cpp \
 					src/core/ServerClient.cpp \
+					src/core/ServerClientUtils.cpp \
 					src/core/ServerLoop.cpp \
 					src/core/ServerSockets.cpp \
 					src/core/Client.cpp \

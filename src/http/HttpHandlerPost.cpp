@@ -6,11 +6,30 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:39 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/04 18:45:39 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 19:44:44 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpHandler.hpp"
+
+/*
+    buildUploadLocation:
+        return a URL path for the uploaded resource
+*/
+static std::string buildUploadLocation(const std::string& uri, const LocationConfig* loc,
+    const std::string& filename)
+{
+    if (loc == NULL)
+        return (uri);
+    if (!uri.empty() && uri[uri.length() - 1] != '/')
+        return (uri);
+    std::string base = loc->path;
+    if (base.empty())
+        base = uri;
+    if (!base.empty() && base[base.length() - 1] != '/')
+        base += "/";
+    return (base + filename);
+}
 
 /*
     handlePost:
@@ -81,8 +100,9 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
     
     std::string resBody = "El archivo se ha subido correctamente al servidor Webserv!\n";
     std::stringstream response;
+    std::string locationUrl = buildUploadLocation(uri, loc, filename);
     response << "HTTP/1.1 201 Created\r\n"
-             << "Location: " << fullPath << "\r\n"
+             << "Location: " << locationUrl << "\r\n"
              << "Content-Type: text/plain\r\n"
              << "Content-Length: " << resBody.length() << "\r\n\r\n"
              << resBody;

@@ -99,7 +99,14 @@ void Server::initSockets()
         std::memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         addr.sin_port = htons(_configs[i].port);
-        addr.sin_addr.s_addr = INADDR_ANY;
+        if (_configs[i].host.empty() || _configs[i].host == "0.0.0.0" || _configs[i].host == "*")
+            addr.sin_addr.s_addr = INADDR_ANY;
+        else if (inet_pton(AF_INET, _configs[i].host.c_str(), &addr.sin_addr) != 1)
+        {
+            std::cerr << "Error: invalid host " << _configs[i].host << std::endl;
+            close(server_fd);
+            continue;
+        }
         if (bind(server_fd, (sockaddr*)&addr, sizeof(addr)) < 0)
         {
             perror("bind");

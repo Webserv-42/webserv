@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "ServerClientUtils.hpp"
 #include <cctype>
 
 /*
@@ -103,12 +104,27 @@ void Server::ReadFromClient(Client& c)
         size_t posEnd = c.buffer.find("\r\n\r\n");
         if (posEnd != std::string::npos)
         {
-            size_t posCL = c.buffer.find("Content-Length: ");
-            if (posCL != std::string::npos && posCL < posEnd)
+            std::string headersBlock = c.buffer.substr(0, posEnd + 2);
+            std::string transferEncoding;
+            if (ServerClientUtils::getHeaderValue(headersBlock, "Transfer-Encoding", transferEncoding))
             {
-                size_t endLine = c.buffer.find("\r\n", posCL);
-                std::string clStr = c.buffer.substr(posCL + 16, endLine - (posCL + 16));
-                c.ContLength = (size_t)std::atol(clStr.c_str());
+                std::string lowered = ServerClientUtils::toLower(transferEncoding);
+                if (lowered.find("chunked") != std::string::npos)
+                {
+                    if (!ServerClientUtils::isChunkedBodyComplete(c.buffer, posEnd + 4))
+                    {
+                        c.state = READING_BODY;
+                        return ;
+                    }
+                    c.state = PROCESSING;
+                    return ;
+                }
+            }
+
+            std::string contentLength;
+            if (ServerClientUtils::getHeaderValue(headersBlock, "Content-Length", contentLength))
+            {
+                c.ContLength = (size_t)std::atol(contentLength.c_str());
                 if (c.ContLength > (size_t)c.config->clientMaxBodySize)
                 {
                     c.response = "HTTP/1.1 413 Payload Too Large\r\nContent-Length: 0\r\n\r\n";
@@ -126,6 +142,18 @@ void Server::ReadFromClient(Client& c)
     if (c.state == READING_BODY)
     {
         size_t headerEnd = c.buffer.find("\r\n\r\n") + 4;
+        std::string headersBlock = c.buffer.substr(0, headerEnd);
+        std::string transferEncoding;
+        if (ServerClientUtils::getHeaderValue(headersBlock, "Transfer-Encoding", transferEncoding))
+        {
+            std::string lowered = ServerClientUtils::toLower(transferEncoding);
+            if (lowered.find("chunked") != std::string::npos)
+            {
+                if (ServerClientUtils::isChunkedBodyComplete(c.buffer, headerEnd))
+                    c.state = PROCESSING;
+                return ;
+            }
+        }
         size_t bodyRecibed = c.buffer.size() - headerEnd;
         if (bodyRecibed >= c.ContLength)
             c.state = PROCESSING;

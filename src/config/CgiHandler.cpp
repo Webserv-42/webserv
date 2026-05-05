@@ -6,11 +6,12 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 11:52:35 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/04 19:59:38 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/05 19:26:49 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CgiHandler.hpp"
+#include <cctype>
 #include <sys/wait.h>
 
 /*
@@ -99,15 +100,66 @@ void CgiHandler::executeChild(const std::string &executablePath, const std::stri
 char** CgiHandler::createEnv(const std::string &scriptPath, const HttpRequest &req)
 {
 	std::vector<std::string> envStrings;
+	std::map<std::string, std::string> headers = req.getHeaders();
+	std::string uri = req.getUri();
+	std::string path = uri;
+	std::string query = "";
+	size_t queryPos = uri.find('?');
+	if (queryPos != std::string::npos)
+	{
+		path = uri.substr(0, queryPos);
+		query = uri.substr(queryPos + 1);
+	}
+
 	envStrings.push_back("REQUEST_METHOD=" + req.getMethod());
-	envStrings.push_back("REQUEST_URI=" + req.getUri());
+	envStrings.push_back("REQUEST_URI=" + uri);
+	envStrings.push_back("QUERY_STRING=" + query);
+	envStrings.push_back("SCRIPT_NAME=" + path);
+	envStrings.push_back("PATH_INFO=");
 	envStrings.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	envStrings.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	envStrings.push_back("SCRIPT_FILENAME=" + scriptPath);
-	
+
+	std::string contentType = "";
+	if (headers.find("Content-Type") != headers.end())
+		contentType = headers["Content-Type"];
+	envStrings.push_back("CONTENT_TYPE=" + contentType);
+
 	std::stringstream ss;
 	ss << req.getBody().length();
 	envStrings.push_back("CONTENT_LENGTH=" + ss.str());
+
+	if (headers.find("Host") != headers.end())
+	{
+		std::string host = headers["Host"];
+		std::string port = "";
+		size_t colon = host.find(':');
+		if (colon != std::string::npos)
+		{
+			port = host.substr(colon + 1);
+			host = host.substr(0, colon);
+		}
+		if (!host.empty())
+			envStrings.push_back("SERVER_NAME=" + host);
+		if (!port.empty())
+			envStrings.push_back("SERVER_PORT=" + port);
+	}
+
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+	{
+		if (it->first == "Content-Type" || it->first == "Content-Length")
+			continue;
+		std::string envKey = "HTTP_";
+		for (size_t i = 0; i < it->first.size(); ++i)
+		{
+			unsigned char ch = static_cast<unsigned char>(it->first[i]);
+			if (std::isalnum(ch))
+				envKey += static_cast<char>(std::toupper(ch));
+			else
+				envKey += '_';
+		}
+		envStrings.push_back(envKey + "=" + it->second);
+	}
 	char** envp = new char*[envStrings.size() + 1];
 	for (size_t i = 0; i < envStrings.size(); ++i) 
 	{
