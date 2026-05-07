@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="/login/style.css">
+    </head>
+    <body class="page">
+        <form id="login-form" class="login" action="/tests/index.html" method="get" autocomplete="off">
+            <div id="username-control" class="form-control">
+                <input id="username" name="username" required="" type="text" autocomplete="username">
+                <label for="username">
+                    <span style="transition-delay:350ms">U</span>
+                    <span style="transition-delay:300ms">s</span>
+                    <span style="transition-delay:250ms">e</span>
+                    <span style="transition-delay:200ms">r</span>
+                    <span style="transition-delay:150ms">n</span>
+                    <span style="transition-delay:100ms">a</span>
+                    <span style="transition-delay:50ms">m</span>
+                    <span style="transition-delay:0ms">e</span>
+                </label>
+                <button id="register-button" class="register-button" type="button">Register</button>
+            </div>
+            <div id="password-control" class="form-control is-hidden">
+                <button id="back-button" class="button back-button" type="button" aria-label="Volver a username">
+                    <div class="button-box">
+                        <span class="button-elem">
+                            <svg viewBox="0 0 46 40" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z"
+                                ></path>
+                            </svg>
+                        </span>
+                        <span class="button-elem">
+                            <svg viewBox="0 0 46 40">
+                                <path
+                                    d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z"
+                                ></path>
+                            </svg>
+                        </span>
+                    </div>
+                </button>
+                <input id="password" name="password" required="" type="password" autocomplete="current-password">
+                <label for="password">
+                    <span style="transition-delay:350ms">P</span>
+                    <span style="transition-delay:300ms">a</span>
+                    <span style="transition-delay:250ms">s</span>
+                    <span style="transition-delay:200ms">s</span>
+                    <span style="transition-delay:150ms">w</span>
+                    <span style="transition-delay:100ms">o</span>
+                    <span style="transition-delay:50ms">r</span>
+                    <span style="transition-delay:0ms">d</span>
+                </label>
+            </div>
+        </form>
+        <script>
+            const usernameInput = document.getElementById("username");
+            const loginForm = document.getElementById("login-form");
+            const usernameControl = document.getElementById("username-control");
+            const passwordControl = document.getElementById("password-control");
+            const passwordInput = document.getElementById("password");
+            const backButton = document.getElementById("back-button");
+            const registerButton = document.getElementById("register-button");
+            const redirectUrl = "/tests/index.html";
+
+            usernameInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    usernameControl.classList.add("is-hidden");
+                    passwordControl.classList.remove("is-hidden");
+                    passwordInput.focus();
+                }
+            });
+
+            backButton.addEventListener("click", () => {
+                passwordControl.classList.add("is-hidden");
+                usernameControl.classList.remove("is-hidden");
+                usernameInput.focus();
+            });
+
+            passwordInput.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    window.location.href = redirectUrl;
+                }
+            });
+
+            loginForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                window.location.href = redirectUrl;
+            });
+
+            registerButton.addEventListener("click", () => {
+                window.location.href = "/login/register.html";
+            });
+        </script>
+    </body>
+</html>
