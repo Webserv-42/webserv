@@ -7,7 +7,12 @@
         <link rel="stylesheet" href="/login/style.css">
     </head>
     <body class="page">
-        <form id="login-form" class="login" action="/tests/index.html" method="get" autocomplete="off">
+        <div id="toast">
+            <span class="toast-icon">✕</span>
+            <span id="toast-text">Usuario o contraseña incorrectos</span>
+        </div>
+
+        <form id="login-form" class="login" autocomplete="off">
             <div id="username-control" class="form-control">
                 <input id="username" name="username" required="" type="text" autocomplete="username">
                 <label for="username">
@@ -56,13 +61,20 @@
         </form>
         <script>
             const usernameInput = document.getElementById("username");
-            const loginForm = document.getElementById("login-form");
             const usernameControl = document.getElementById("username-control");
             const passwordControl = document.getElementById("password-control");
             const passwordInput = document.getElementById("password");
             const backButton = document.getElementById("back-button");
             const registerButton = document.getElementById("register-button");
-            const redirectUrl = "/tests/index.html";
+            const loginForm = document.getElementById("login-form");
+            const toast = document.getElementById("toast");
+            const toastText = document.getElementById("toast-text");
+
+            function showToast(message) {
+                toastText.textContent = message;
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 3500);
+            }
 
             usernameInput.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
@@ -79,20 +91,43 @@
                 usernameInput.focus();
             });
 
+            registerButton.addEventListener("click", () => {
+                window.location.href = "/login/register.html";
+            });
+
+            function submitLogin() {
+                const body = "username=" + encodeURIComponent(usernameInput.value)
+                           + "&password=" + encodeURIComponent(passwordInput.value);
+                fetch("/cgi-bin/login.py", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: body
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.ok) {
+                        window.location.href = data.redirect;
+                    } else {
+                        showToast(data.error || "Error al iniciar sesión");
+                        passwordInput.value = "";
+                        passwordInput.focus();
+                    }
+                })
+                .catch(function() {
+                    showToast("Error de conexión con el servidor");
+                });
+            }
+
             passwordInput.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     event.preventDefault();
-                    window.location.href = redirectUrl;
+                    submitLogin();
                 }
             });
 
             loginForm.addEventListener("submit", (event) => {
                 event.preventDefault();
-                window.location.href = redirectUrl;
-            });
-
-            registerButton.addEventListener("click", () => {
-                window.location.href = "/login/register.html";
+                submitLogin();
             });
         </script>
     </body>

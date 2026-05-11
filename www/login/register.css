@@ -175,3 +175,19 @@
     animation: none;
   }
 }
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #b0d4df;
+}
+
+#toast.toast-success {
+  border-color: rgba(77, 255, 130, 0.6);
+  box-shadow: 0 8px 32px rgba(77, 255, 130, 0.2);
+}
+
+#toast.toast-success .toast-icon {
+  background: rgba(77, 255, 130, 0.15);
+  border-color: rgba(77, 255, 130, 0.5);
+}

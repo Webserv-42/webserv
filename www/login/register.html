@@ -8,41 +8,109 @@
     <link rel="stylesheet" href="/login/register.css">
   </head>
   <body class="page">
+
+    <div id="toast">
+      <span class="toast-icon">✕</span>
+      <span id="toast-text">Error en el registro</span>
+    </div>
+
     <div class="register-panel">
-      <form class="form" action="/tests/index.html" method="get" autocomplete="off">
+      <form id="register-form" class="form" autocomplete="off">
         <p class="title">Register</p>
-        <p class="message">Signup now and get full access to our app.</p>
+        <p class="message">Crea tu cuenta para acceder al dashboard.</p>
+
         <div class="flex">
           <label>
-            <input required="" placeholder="" type="text" class="input">
+            <input id="firstname" name="firstname" required placeholder="" type="text" class="input">
             <span>Firstname</span>
           </label>
           <label>
-            <input required="" placeholder="" type="text" class="input">
+            <input id="lastname" name="lastname" required placeholder="" type="text" class="input">
             <span>Lastname</span>
           </label>
         </div>
+
         <label>
-          <input required="" placeholder="" type="email" class="input">
-          <span>Email</span>
+          <input id="reg-username" name="username" required placeholder="" type="text" class="input">
+          <span>Username</span>
         </label>
+
         <label>
-          <input required="" placeholder="" type="password" class="input">
+          <input id="reg-password" name="password" required placeholder="" type="password" class="input">
           <span>Password</span>
         </label>
+
         <label>
-          <input required="" placeholder="" type="password" class="input">
+          <input id="reg-confirm" name="confirm" required placeholder="" type="password" class="input">
           <span>Confirm password</span>
         </label>
-        <button class="submit" type="submit">Submit</button>
-        <p class="signin">Already have an account ? <a href="/login/index.html">Signin</a></p>
+
+        <button id="reg-submit" class="submit" type="submit">Submit</button>
+        <p class="signin">Already have an account? <a href="/login/index.html">Signin</a></p>
       </form>
     </div>
+
     <script>
-      const registerForm = document.querySelector(".form");
-      registerForm.addEventListener("submit", (event) => {
+      const form       = document.getElementById("register-form");
+      const toast      = document.getElementById("toast");
+      const toastText  = document.getElementById("toast-text");
+      const submitBtn  = document.getElementById("reg-submit");
+
+      function showToast(message, isSuccess) {
+        toastText.textContent = message;
+        toast.classList.add("show");
+        if (isSuccess) {
+          toast.classList.add("toast-success");
+          toast.classList.remove("toast-error");
+        } else {
+          toast.classList.add("toast-error");
+          toast.classList.remove("toast-success");
+        }
+        setTimeout(() => toast.classList.remove("show"), 3500);
+      }
+
+      form.addEventListener("submit", function(event) {
         event.preventDefault();
-        window.location.href = "/tests/index.html";
+
+        const username = document.getElementById("reg-username").value.trim();
+        const password = document.getElementById("reg-password").value.trim();
+        const confirm  = document.getElementById("reg-confirm").value.trim();
+
+        if (password !== confirm) {
+          showToast("Las contraseñas no coinciden", false);
+          return;
+        }
+
+        const body = "username=" + encodeURIComponent(username)
+                   + "&password=" + encodeURIComponent(password)
+                   + "&confirm="  + encodeURIComponent(confirm);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Registrando...";
+
+        fetch("/cgi-bin/register.py", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.ok) {
+            showToast("¡Registro exitoso! Redirigiendo al login...", true);
+            setTimeout(function() {
+              window.location.href = "/login/index.html";
+            }, 2000);
+          } else {
+            showToast(data.error || "Error en el registro", false);
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit";
+          }
+        })
+        .catch(function() {
+          showToast("Error de conexión con el servidor", false);
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Submit";
+        });
       });
     </script>
   </body>
