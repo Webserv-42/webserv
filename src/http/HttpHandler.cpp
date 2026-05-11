@@ -25,9 +25,28 @@ HttpHandler::~HttpHandler()
 }
 
 /*
+    injectSessionCookie:
+        Injects a Set-Cookie header into a raw HTTP response string
+        if a new session was just created.
+*/
+static std::string injectSessionCookie(const std::string& response, const std::string& newSessionId)
+{
+	if (newSessionId.empty())
+		return (response);
+	size_t headerEnd = response.find("\r\n");
+	if (headerEnd == std::string::npos)
+		return (response);
+	std::string result = response;
+	result.insert(headerEnd + 2, "Set-Cookie: session_id=" + newSessionId + "; Path=/; Max-Age=3600\r\n");
+	return (result);
+}
+
+/*
     handleRequest:
         main traffic manager, delegates logic to specialized functions
 		depending on the HTTP method.
+        After getting a response, always injects Set-Cookie if a new
+        session was created.
 */
 std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& serverConf, int* cgiPipeFd, int* cgiWriteFd)
 {
@@ -52,22 +71,16 @@ std::string HttpHandler::handleRequest(HttpRequest& req, const ServerConfig& ser
               << "Content-Type: text/html\r\n"
               << "Content-Length: " << body.length() << "\r\n\r\n"
               << body;
-        return (redir.str());
+        return (injectSessionCookie(redir.str(), newSessionId));
     }
     if (method == "GET")
-        return (handleGet(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
+        response = handleGet(req, serverConf, uri, cgiPipeFd, cgiWriteFd);
     else if (method == "POST")
-        return (handlePost(req, serverConf, uri, cgiPipeFd, cgiWriteFd));
+        response = handlePost(req, serverConf, uri, cgiPipeFd, cgiWriteFd);
     else if (method == "DELETE")
-        return (handleDelete(req, serverConf, uri));
+        response = handleDelete(req, serverConf, uri);
 	else
-		response = (buildErrorResponse(405, &serverConf, NULL));
+		response = buildErrorResponse(405, &serverConf, NULL);
 
-	if(!newSessionId.empty())
-	{
-		size_t headerEnd = response.find("\r\n");
-		if(headerEnd != std::string::npos)
-			response.insert(headerEnd + 2, "Set-Cookie: session_id=" + newSessionId + "\r\n");
-	}
-	return (response);
+	return (injectSessionCookie(response, newSessionId));
 }

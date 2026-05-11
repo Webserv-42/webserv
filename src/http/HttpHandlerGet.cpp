@@ -48,7 +48,7 @@ std::string HttpHandler::handleGet(HttpRequest& req, const ServerConfig& serverC
             return (dirResponse);
     }
     std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd, cgiWriteFd);
-    if (!cgiResponse.empty()) 
+    if (!cgiResponse.empty() || (cgiPipeFd != NULL && *cgiPipeFd != -1)) 
         return (cgiResponse);
     return (serveStaticFile(filePath, serverConf, loc));
 }

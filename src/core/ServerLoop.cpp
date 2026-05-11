@@ -91,30 +91,57 @@ void Server::handleCgiResponse(int pipeFd)
     char buffer[4096];
     int n = read(pipeFd, buffer, sizeof(buffer));
 
-    if (n <= 0)
+    if (n > 0)
     {
-        close(pipeFd);
-        removePollFd(pipeFd);
-        _cgiPipeToClient.erase(pipeFd);
-        setPollEvents(clientFd, POLLIN | POLLOUT);
-        size_t headerEnd = c.response.find("\r\n\r\n");
-        if (headerEnd != std::string::npos)
-        {
-            size_t bodyLen = c.response.length() - (headerEnd + 4);
-            std::stringstream ss;
-            ss << "HTTP/1.1 200 OK\r\nContent-Length: " << bodyLen << "\r\n";
-            c.response = ss.str() + c.response;
-        }
-        else
-        {
-            std::stringstream ss;
-            ss << "HTTP/1.1 200 OK\r\nContent-Length: " << c.response.length() << "\r\n\r\n";
-            c.response = ss.str() + c.response;
-        }
-        c.bytesSend = 0;
-        c.state = SENDING;
+        c.response.append(buffer, n);
+        c.lastActivity = time(NULL);
         return ;
     }
-    c.response.append(buffer, n);
-    c.lastActivity = time(NULL);
+
+    close(pipeFd);
+    removePollFd(pipeFd);
+    _cgiPipeToClient.erase(pipeFd);
+
+    std::string cgiOut = c.response;
+    c.response.clear();
+
+    std::string statusLine = "200 OK";
+    std::string cgiHeaders = "";
+    std::string cgiBody = "";
+
+    size_t headerEnd = cgiOut.find("\r\n\r\n");
+    if (headerEnd != std::string::npos)
+    {
+        cgiHeaders = cgiOut.substr(0, headerEnd + 2);
+        cgiBody    = cgiOut.substr(headerEnd + 4);
+    }
+    else
+    {
+        cgiBody = cgiOut;
+    }
+    size_t statusPos = cgiHeaders.find("Status:");
+    if (statusPos != std::string::npos)
+    {
+        size_t statusEnd = cgiHeaders.find("\r\n", statusPos);
+        if (statusEnd != std::string::npos)
+        {
+            std::string fullStatus = cgiHeaders.substr(statusPos + 7, statusEnd - (statusPos + 7));
+            size_t first = fullStatus.find_first_not_of(" \t");
+            if (first != std::string::npos)
+                statusLine = fullStatus.substr(first);
+            cgiHeaders.erase(statusPos, statusEnd - statusPos + 2);
+        }
+    }
+
+    std::stringstream response;
+    response << "HTTP/1.1 " << statusLine << "\r\n";
+    response << cgiHeaders;
+    response << "Content-Length: " << cgiBody.length() << "\r\n\r\n";
+    response << cgiBody;
+
+    c.response = response.str();
+    c.bytesSend = 0;
+    c.state = SENDING;
+    setPollEvents(clientFd, POLLIN | POLLOUT);
 }
+

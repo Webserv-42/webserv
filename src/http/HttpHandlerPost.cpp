@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/29 13:13:39 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/05 19:44:44 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/11 17:38:47 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,14 +48,14 @@ std::string HttpHandler::handlePost(HttpRequest& req, const ServerConfig& server
     const LocationConfig* loc = matchLocation(uri, serverConf);
     if (loc != NULL && !isMethodAllowed(loc, req.getMethod()))
         return (buildErrorResponse(405, &serverConf, loc));
-    if (loc == NULL || loc->upload_enable == false) 
-        return (buildErrorResponse(403, &serverConf, loc)); 
-       
     std::string filePath = buildLocationPath(uri, loc);
     std::string cgiResponse = serveCgiIfMatch(filePath, req, loc, cgiPipeFd, cgiWriteFd);
-    if (!cgiResponse.empty() || (cgiPipeFd != NULL && *cgiPipeFd != -1)) 
+    if (!cgiResponse.empty() || (cgiPipeFd != NULL && *cgiPipeFd != -1))
         return (cgiResponse);
     
+    if (loc == NULL || loc->upload_enable == false)
+        return (buildErrorResponse(403, &serverConf, loc));
+            
     std::string uploadDir = loc->upload_store;
     std::string body = req.getBody();
     std::string filename = "";
