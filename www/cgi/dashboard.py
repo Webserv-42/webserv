@@ -44,7 +44,8 @@ def main():
         respond_redirect("/login/index.html", "<p>Please log in.</p>")
         return
 
-    respond_dashboard()
+    respond_redirect("/dashboard/index.html", "<p>Cargando dashboard...</p>")
+    
 
 
 if __name__ == "__main__":

@@ -92,6 +92,35 @@
   outline: none;
 }
 
+.button-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+
+.dashboard-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 34px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.dashboard-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
 .credits {
   width: 100%;
   display: flex;
