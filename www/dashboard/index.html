@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>webserv — Dashboard de Pruebas</title>
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+<div class="header">
+  <h1>webserv — panel de pruebas</h1>
+  <div class="header-right">
+    <span id="server-status" class="status s-pend">servidor: desconocido</span>
+    <button class="btn" onclick="checkServer()">verificar</button>
+    <button class="btn btn-primary" onclick="runAll()">ejecutar todo</button>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="stat"><div class="stat-num num-total" id="s-total">17</div><div class="stat-label">pruebas totales</div></div>
+  <div class="stat"><div class="stat-num num-pass"  id="s-pass">0</div><div class="stat-label">aprobadas</div></div>
+  <div class="stat"><div class="stat-num num-fail"  id="s-fail">0</div><div class="stat-label">fallidas</div></div>
+  <div class="stat"><div class="stat-num num-pend"  id="s-pend">17</div><div class="stat-label">pendientes</div></div>
+</div>
+
+<div class="progress"><div class="progress-bar" id="prog"></div></div>
+
+<div class="grid" id="grid"></div>
+
+<script src="/cgi/test.js"></script>
