@@ -16,19 +16,32 @@
       <span class="user-name" id="user-name">unknown</span>
     </div>
     <div class="header-right">
+      <!-- Botón CHECK (Verde) -->
       <span id="server-status" class="status s-pend">server: unknown</span>
-      <button class="btn-verify" onclick="checkServer()">check</button>
-      <button class="btn-run" onclick="runAll()">run all</button>
-      <button class="Btn" onclick="logout()">
+      <button class="header-btn btn-check" onclick="checkServer()" title="Check Status">
         <div class="sign">
-          <svg viewBox="0 0 512 512" aria-hidden="true">
-            <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path>
-          </svg>
+          <svg viewBox="0 0 512 512"><path d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69L432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
         </div>
-        <div class="text">Log out</div>
+        <div class="text">Status</div>
+      </button>
+
+      <!-- Botón RUN ALL (Azul) -->
+      <button class="header-btn btn-run-all" onclick="runAll()" title="Run All Tests">
+        <div class="sign">
+          <svg viewBox="0 0 384 512"><path d="M360.5 217.5l-132.3-132.3c-12.5-12.5-32.8-12.5-45.3 0l-132.3 132.3c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l76.3-76.3V448c0 17.7 14.3 32 32 32s32-14.3 32-32V186.5l76.3 76.3c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3z"></path></svg>
+        </div>
+        <div class="text">Run All</div>
+      </button>
+
+      <!-- Botón LOGOUT (Rojo) -->
+      <button class="header-btn btn-logout" onclick="logout()" title="Logout">
+        <div class="sign">
+          <svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1L32 320c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l288 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9z"></path></svg>
+        </div>
+        <div class="text">Logout</div>
       </button>
     </div>
-  </div>
+</div>
 
 <div class="summary">
   <div class="stat"><div class="stat-num num-total" id="s-total">17</div><div class="stat-label">total tests</div></div>
@@ -41,6 +54,15 @@
 
 <div class="grid" id="grid"></div>
 
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal()">&times;</button>
+    <h2 id="modal-title"></h2>
+    <p id="modal-desc"></p>
+  </div>
+</div>
+
 <script src="/cgi/test.js"></script>
+<script src="/cgi/info_test.js"></script>
 </body>
 </html>

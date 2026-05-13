@@ -51,7 +51,10 @@ function buildCards(){
       <div class="card-cmd">${t.cmd}</div>
       <div class="card-footer">
         <span id="badge-${t.id}" class="status s-pend">pending</span>
+        <div class="card-buttons">
+        <button class="info-btn" onclick="openModal(${t.id})">info</button>
         <button class="run-btn" onclick="runTest(${t.id})">run</button>
+        </div>
       </div>
       <div class="result-box" id="result-${t.id}"></div>
     </div>`).join('');
@@ -113,14 +116,30 @@ async function runAll(){
   for(const t of tests){await runTest(t.id);await new Promise(r=>setTimeout(r,200));}
 }
 
-async function checkServer(){
-  const el=document.getElementById('server-status');
-  el.className='status s-running';el.textContent='checking...';
-  try{
-    const r=await fetchLocal('/');
-    el.className='status s-pass';el.textContent='server: active ('+r.status+')';
-  }catch(e){
-    el.className='status s-fail';el.textContent='server: no response';
+async function checkServer() {
+  const el = document.getElementById('server-status');
+  el.className = 'status s-running';
+  el.textContent = 'checking...';
+
+  try {
+    // Cambiamos 'HEAD' por 'GET' para que tu servidor lo acepte
+    const response = await fetchLocal('/', { method: 'GET' });
+    
+    // Un status 200 o incluso el 405 significan que el proceso está VIVO
+    if (response.status === 200)
+      {
+      el.className = 'status s-pass';
+      el.textContent = 'server: online';
+    } 
+    else 
+    {
+      // Si el servidor responde CUALQUIER cosa (aunque sea error), está activo
+      el.className = 'status s-pass'; 
+      el.textContent = `server: active (${response.status})`;
+    }
+  } catch (e) {
+    el.className = 'status s-fail';
+    el.textContent = 'server: offline';
   }
 }
 
@@ -155,3 +174,8 @@ function logout() {
         window.location.href = '/login/index.html';
     });
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  buildCards();
+  checkServer();
+});

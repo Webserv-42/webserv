@@ -128,6 +128,93 @@ button {
   line-height: 1.4;
 }
 
+/* DESDE AQUI LO FLOTANTE */
+
+.card-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.info-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-md);
+  border: 0.5 solid var(--color-border-tertiary);
+  background: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.info-btn:hover {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-secondary);
+}
+
+/* Fondo oscuro (Overlay) */
+.modal-overlay {
+  display: none; /* Se activa con JS cambiando a 'flex' */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px); /* Desenfoque moderno */
+  z-index: 2000; /* Por encima de todo el dashboard */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Caja de información flotante */
+.modal-content {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 24px;
+  max-width: 450px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: modalSlide 0.3s ease-out;
+}
+
+.modal-content h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--color-text-primary);
+}
+
+.modal-content p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Botón cerrar modal */
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: var(--color-text-danger);
+}
+
+/* Animación de entrada */
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HASTA AQUI LO FLOTANTE */
 .card-num {
   font-size: 11px;
   color: var(--color-text-tertiary);
@@ -254,8 +341,84 @@ button {
   display: block;
 }
 
+/* Estilo base para todos los botones expandibles del Header */
+.header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 36px; /* Círculo perfecto inicial */
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-sans);
+}
+
+.header-btn .sign {
+  width: 100%;
+  transition-duration: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-btn .sign svg {
+  width: 16px;
+  fill: #fff;
+}
+
+.header-btn .text {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition-duration: 0.3s;
+  white-space: nowrap;
+}
+
+/* Efecto de expansión al hacer hover */
+.header-btn:hover {
+  width: 115px; /* Se expande para mostrar el texto */
+  border-radius: 30px;
+}
+
+.header-btn:hover .sign {
+  width: 30%;
+  padding-left: 10px;
+}
+
+.header-btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  padding-right: 10px;
+}
+
+.header-btn:active {
+  transform: translate(2px, 2px);
+}
+
+/* --- Variantes de Color --- */
+
+/* Logout (Rojo) */
+.btn-logout { background-color: var(--color-text-danger); }
+
+/* Check Server (Verde) */
+.btn-check { background-color: var(--color-text-success); }
+
+/* Run All (Azul) */
+.btn-run-all { background-color: var(--color-text-info); }
+
 /* From Uiverse.io by cssbuttons-io (scoped) */
-.btn-verify {
+/* .btn-verify {
   padding: 0.75em 1.6em;
   font-size: 11px;
   text-transform: uppercase;
@@ -280,10 +443,10 @@ button {
 
 .btn-verify:active {
   transform: translateY(-1px);
-}
+} */
 
 /* From Uiverse.io by mrhyddenn (scoped) */
-.btn-run {
+/* .btn-run {
   position: relative;
   padding: 8px 16px;
   border-radius: 6px;
@@ -344,10 +507,12 @@ button {
 .btn-run:active {
   box-shadow: 0 0 0 0 transparent;
   transition: box-shadow 0.2s ease-in;
-}
+} */
+
+
 
 /* From Uiverse.io by vinodjangid07 (scoped) */
-.Btn {
+/* .Btn {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -411,4 +576,4 @@ button {
 
 .Btn:active {
   transform: translate(2px, 2px);
-}
+} */
