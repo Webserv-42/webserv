@@ -106,6 +106,10 @@
                 .then(function(res) { return res.json(); })
                 .then(function(data) {
                     if (data.ok) {
+                        const storedName = usernameInput.value.trim();
+                        if (storedName) {
+                            localStorage.setItem("webserv_username", storedName);
+                        }
                         window.location.href = data.redirect;
                     } else {
                         showToast(data.error || "Error al iniciar sesión");
