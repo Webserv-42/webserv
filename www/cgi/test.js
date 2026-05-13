@@ -101,3 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.btn-primary').addEventListener('click', runAll);
   document.querySelector('.btn[onclick="checkServer()"]').onclick = checkServer;
 });
+
+function logout() {
+    fetch('/cgi-bin/logout.py', {
+        method: 'POST',
+        credentials: 'include'
+    })
+    .then(() => {
+        window.location.href = '/login/index.html';
+    })
+    .catch(() => {
+        // Si fetch falla igual redirigimos
+        window.location.href = '/login/index.html';
+    });
+}

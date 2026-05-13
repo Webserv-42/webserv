@@ -39,3 +39,9 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
 .result-fail{border-left-color:#C0392B;display:block}
 .progress{height:3px;background:var(--color-background-secondary);border-radius:2px;margin:0 24px 8px;overflow:hidden}
 .progress-bar{height:100%;background:var(--color-background-success);width:0%;transition:width 0.4s}
+
+.btn-logout {
+    background: var(--color-background-danger);
+    color: var(--color-text-danger);
+    border-color: var(--color-border-danger);
+}
