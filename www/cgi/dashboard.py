@@ -23,19 +23,20 @@ def respond_redirect(location, message):
     )
 
 
-def respond_dashboard():
+def respond_dashboard_file():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dashboard_path = os.path.join(script_dir, "..", "dashboard", "index.html")
+    try:
+        with open(dashboard_path, "r", encoding="utf-8") as handle:
+            html = handle.read()
+    except OSError:
+        sys.stdout.write("Status: 500 Internal Server Error\r\n")
+        sys.stdout.write("Content-Type: text/plain; charset=utf-8\r\n\r\n")
+        sys.stdout.write("Dashboard file not found.")
+        return
+
     sys.stdout.write("Content-Type: text/html; charset=utf-8\r\n\r\n")
-    sys.stdout.write(
-        "<!doctype html>"
-        "<html><head><meta charset=\"utf-8\"><title>Dashboard</title></head>"
-        "<body>"
-        "<h1>Dashboard</h1>"
-        "<p>Welcome! Your session is active.</p>"
-        "<form action=\"/cgi-bin/logout.py\" method=\"post\">"
-        "<button type=\"submit\">Log out</button>"
-        "</form>"
-        "</body></html>"
-    )
+    sys.stdout.write(html)
 
 
 def main():
@@ -44,7 +45,8 @@ def main():
         respond_redirect("/login/index.html", "<p>Please log in.</p>")
         return
 
-    respond_dashboard()
+    respond_dashboard_file()
+    
 
 
 if __name__ == "__main__":
