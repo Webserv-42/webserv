@@ -17,7 +17,7 @@ def main():
         "<meta charset='utf-8'>"
         "<title>Logout</title>"
         "</head><body>"
-        "<p>Sesión cerrada. Redirigiendo...</p>"
+        "<p>Logged out. Redirecting...</p>"
         "</body></html>"
     )
 

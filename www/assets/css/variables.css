@@ -26,6 +26,7 @@
   --color-border-secondary: #d1d5db;
   --color-border-tertiary: #f3f4f6;
   --color-border-info: #bfdbfe;
+  --color-border-danger: #fecaca;
 
   /* Radius */
   --border-radius-sm: 4px;
@@ -61,5 +62,6 @@
     --color-border-secondary: #4b5563;
     --color-border-tertiary: #1f2937;
     --color-border-info: #2563eb;
+    --color-border-danger: #991b1b;
   }
 }
