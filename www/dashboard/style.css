@@ -128,8 +128,6 @@ button {
   line-height: 1.4;
 }
 
-/* DESDE AQUI LO FLOTANTE */
-
 .card-buttons {
   display: flex;
   gap: 6px;
@@ -151,33 +149,29 @@ button {
   border-color: var(--color-border-secondary);
 }
 
-/* Fondo oscuro (Overlay) */
 .modal-overlay {
-  display: none; /* Se activa con JS cambiando a 'flex' */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px); /* Desenfoque moderno */
-  z-index: 2000; /* Por encima de todo el dashboard */
+  backdrop-filter: blur(4px);
+  z-index: 2000;
   justify-content: center;
   align-items: center;
 }
 
-/* Caja de información flotante */
-
-/*aqui inician*/
 .modal-content {
   background: var(--color-background-primary);
-  border: 1px solid var(--color-border-tertiary); /* Subido a 1px para mayor definición */
+  border: 1px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
-  padding: 32px; /* Más aire para respirar */
+  padding: 32px; 
   max-width: 700px;
   width: 90%;
-  max-height: 85vh; /* Evita que el modal sea más alto que la pantalla */
-  overflow-y: auto; /* Scroll interno si es necesario */
+  max-height: 85vh;
+  overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   animation: modalSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -189,7 +183,7 @@ button {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--color-text-info); /* O el color azul/verde de tu sistema */
+  color: var(--color-text-info);
   margin-bottom: 6px;
   opacity: 0.8;
 }
@@ -201,7 +195,6 @@ button {
 .modal-section:last-child {
   margin-bottom: 0;
 }
- /*hasta aqui van los cambios*/
 
 .modal-content h2 {
   font-size: 16px;
@@ -216,7 +209,6 @@ button {
   line-height: 1.6;
 }
 
-/* Botón cerrar modal */
 .close-modal {
   position: absolute;
   top: 16px;
@@ -234,13 +226,11 @@ button {
   color: var(--color-text-primary);
 }
 
-/* Animación de entrada */
 @keyframes modalSlide {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* HASTA AQUI LO FLOTANTE */
 .card-num {
   font-size: 11px;
   color: var(--color-text-tertiary);
@@ -367,12 +357,11 @@ button {
   display: block;
 }
 
-/* Estilo base para todos los botones expandibles del Header */
 .header-btn {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 36px; /* Círculo perfecto inicial */
+  width: 36px;
   height: 36px;
   border: none;
   border-radius: 50%;
@@ -411,9 +400,8 @@ button {
   white-space: nowrap;
 }
 
-/* Efecto de expansión al hacer hover */
 .header-btn:hover {
-  width: 115px; /* Se expande para mostrar el texto */
+  width: 115px;
   border-radius: 30px;
 }
 
@@ -432,13 +420,8 @@ button {
   transform: translate(2px, 2px);
 }
 
-/* --- Variantes de Color --- */
-
-/* Logout (Rojo) */
 .btn-logout { background-color: var(--color-text-danger); }
 
-/* Check Server (Verde) */
 .btn-check { background-color: var(--color-text-success); }
 
-/* Run All (Azul) */
 .btn-run-all { background-color: var(--color-text-info); }

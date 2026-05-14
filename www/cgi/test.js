@@ -122,10 +122,8 @@ async function checkServer() {
   el.textContent = 'checking...';
 
   try {
-    // Cambiamos 'HEAD' por 'GET' para que tu servidor lo acepte
     const response = await fetchLocal('/', { method: 'GET' });
     
-    // Un status 200 o incluso el 405 significan que el proceso está VIVO
     if (response.status === 200)
       {
       el.className = 'status s-pass';
@@ -133,7 +131,6 @@ async function checkServer() {
     } 
     else 
     {
-      // Si el servidor responde CUALQUIER cosa (aunque sea error), está activo
       el.className = 'status s-pass'; 
       el.textContent = `server: active (${response.status})`;
     }
@@ -143,7 +140,6 @@ async function checkServer() {
   }
 }
 
-// Dentro de dashboard.js (con type="module")
 document.addEventListener('DOMContentLoaded', () => {
   buildCards();
   checkServer();
@@ -170,7 +166,7 @@ function logout() {
         window.location.href = '/login/index.html';
     })
     .catch(() => {
-        // Si fetch falla igual redirigimos
+
         window.location.href = '/login/index.html';
     });
 }
