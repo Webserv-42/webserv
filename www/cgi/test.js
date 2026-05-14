@@ -51,7 +51,10 @@ function buildCards(){
       <div class="card-cmd">${t.cmd}</div>
       <div class="card-footer">
         <span id="badge-${t.id}" class="status s-pend">pending</span>
+        <div class="card-buttons">
+        <button class="info-btn" onclick="openModal(${t.id})">info</button>
         <button class="run-btn" onclick="runTest(${t.id})">run</button>
+        </div>
       </div>
       <div class="result-box" id="result-${t.id}"></div>
     </div>`).join('');
@@ -113,18 +116,30 @@ async function runAll(){
   for(const t of tests){await runTest(t.id);await new Promise(r=>setTimeout(r,200));}
 }
 
-async function checkServer(){
-  const el=document.getElementById('server-status');
-  el.className='status s-running';el.textContent='checking...';
-  try{
-    const r=await fetchLocal('/');
-    el.className='status s-pass';el.textContent='server: active ('+r.status+')';
-  }catch(e){
-    el.className='status s-fail';el.textContent='server: no response';
+async function checkServer() {
+  const el = document.getElementById('server-status');
+  el.className = 'status s-running';
+  el.textContent = 'checking...';
+
+  try {
+    const response = await fetchLocal('/', { method: 'GET' });
+    
+    if (response.status === 200)
+      {
+      el.className = 'status s-pass';
+      el.textContent = 'server: online';
+    } 
+    else 
+    {
+      el.className = 'status s-pass'; 
+      el.textContent = `server: active (${response.status})`;
+    }
+  } catch (e) {
+    el.className = 'status s-fail';
+    el.textContent = 'server: offline';
   }
 }
 
-// Dentro de dashboard.js (con type="module")
 document.addEventListener('DOMContentLoaded', () => {
   buildCards();
   checkServer();
@@ -151,7 +166,12 @@ function logout() {
         window.location.href = '/login/index.html';
     })
     .catch(() => {
-        // Si fetch falla igual redirigimos
+
         window.location.href = '/login/index.html';
     });
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  buildCards();
+  checkServer();
+});

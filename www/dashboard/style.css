@@ -128,6 +128,109 @@ button {
   line-height: 1.4;
 }
 
+.card-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.info-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-md);
+  border: 0.5 solid var(--color-border-tertiary);
+  background: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.info-btn:hover {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-secondary);
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 32px; 
+  max-width: 700px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  animation: modalSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-info);
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section:last-child {
+  margin-bottom: 0;
+}
+
+.modal-content h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--color-text-primary);
+}
+
+.modal-content p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.close-modal:hover {
+  color: var(--color-text-primary);
+}
+
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .card-num {
   font-size: 11px;
   color: var(--color-text-tertiary);
@@ -254,116 +357,23 @@ button {
   display: block;
 }
 
-/* From Uiverse.io by cssbuttons-io (scoped) */
-.btn-verify {
-  padding: 0.75em 1.6em;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.6px;
-  font-weight: 600;
-  color: #000;
-  background-color: #fff;
-  border: none;
-  border-radius: 26px;
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease 0s;
-  cursor: pointer;
-  outline: none;
-}
-
-.btn-verify:hover {
-  background-color: var(--color-text-success);
-  box-shadow: 0px 12px 16px rgba(5, 150, 105, 0.3);
-  color: #fff;
-  transform: translateY(-4px);
-}
-
-.btn-verify:active {
-  transform: translateY(-1px);
-}
-
-/* From Uiverse.io by mrhyddenn (scoped) */
-.btn-run {
-  position: relative;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: 1px solid var(--color-text-info);
-  font-size: 12px;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 1.4px;
-  background: transparent;
-  color: var(--color-text-info);
-  overflow: hidden;
-  box-shadow: 0 0 0 0 transparent;
-  transition: all 0.2s ease-in;
-  cursor: pointer;
-}
-
-.btn-run:hover {
-  background: var(--color-text-info);
-  color: #fff;
-  box-shadow: 0 0 20px 4px rgba(37, 99, 235, 0.45);
-  transition: all 0.2s ease-out;
-}
-
-.btn-run:hover::before {
-  animation: btn-run-shine 0.5s linear;
-}
-
-.btn-run::before {
-  content: '';
-  display: block;
-  width: 0px;
-  height: 86%;
-  position: absolute;
-  top: 7%;
-  left: 0%;
-  opacity: 0;
-  background: #fff;
-  box-shadow: 0 0 50px 30px #fff;
-  transform: skewX(-20deg);
-}
-
-@keyframes btn-run-shine {
-  from {
-    opacity: 0;
-    left: 0%;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-    left: 100%;
-  }
-}
-
-.btn-run:active {
-  box-shadow: 0 0 0 0 transparent;
-  transition: box-shadow 0.2s ease-in;
-}
-
-/* From Uiverse.io by vinodjangid07 (scoped) */
-.Btn {
+.header-btn {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   transition-duration: 0.3s;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.16);
-  background-color: var(--color-text-danger);
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-sans);
 }
 
-.Btn .sign {
+.header-btn .sign {
   width: 100%;
   transition-duration: 0.3s;
   display: flex;
@@ -371,44 +381,47 @@ button {
   justify-content: center;
 }
 
-.Btn .sign svg {
-  width: 14px;
-}
-
-.Btn .sign svg path {
+.header-btn .sign svg {
+  width: 16px;
   fill: #fff;
 }
 
-.Btn .text {
+.header-btn .text {
   position: absolute;
   right: 0%;
   width: 0%;
   opacity: 0;
   color: #fff;
-  font-size: 0.95em;
+  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   transition-duration: 0.3s;
+  white-space: nowrap;
 }
 
-.Btn:hover {
-  width: 108px;
-  border-radius: 32px;
-  transition-duration: 0.3s;
+.header-btn:hover {
+  width: 115px;
+  border-radius: 30px;
 }
 
-.Btn:hover .sign {
+.header-btn:hover .sign {
   width: 30%;
-  transition-duration: 0.3s;
-  padding-left: 12px;
+  padding-left: 10px;
 }
 
-.Btn:hover .text {
+.header-btn:hover .text {
   opacity: 1;
   width: 70%;
-  transition-duration: 0.3s;
-  padding-right: 8px;
+  padding-right: 10px;
 }
 
-.Btn:active {
+.header-btn:active {
   transform: translate(2px, 2px);
 }
+
+.btn-logout { background-color: var(--color-text-danger); }
+
+.btn-check { background-color: var(--color-text-success); }
+
+.btn-run-all { background-color: var(--color-text-info); }
