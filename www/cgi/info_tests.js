@@ -1,96 +1,96 @@
 
 const testsInfo = {
     1: {
-        objetivo: "Verificación de la capacidad del servidor para servir archivos estáticos (index.html) y gestionar sesiones iniciales.",
-        comando: "curl -i -s http://localhost:8080/",
-        verificacion: "Retorno de HTTP 200 OK y cabecera Set-Cookie: session_id=...."
+        objective: "Verify the server can serve static files (index.html) and handle initial sessions.",
+        command: "curl -i -s http://localhost:8080/",
+        verification: "Return of HTTP 200 OK and Set-Cookie header: session_id=...."
     },
     2: {
-        objetivo: "Comprobación del manejo de errores cuando un recurso no se encuentra en el servidor.",
-        comando: "curl -i -s http://localhost:8080/nonexistent.html",
-        verificacion: "Retorno de HTTP 404 Not Found y visualización de la página de error personalizada."
+        objective: "Check error handling when a resource is not found on the server.",
+        command: "curl -i -s http://localhost:8080/nonexistent.html",
+        verification: "Return of HTTP 404 Not Found and display of the custom error page."
     },
     3: {
-        objetivo: "Prueba de transferencia de datos hacia el servidor para la creación de nuevos archivos en disco.",
-        comando: `curl -i -s -X POST -d "test body" \\
+        objective: "Test data transfer to the server to create new files on disk.",
+        command: `curl -i -s -X POST -d "test body" \\
                     http://localhost:8080/uploads/test.txt`,
-        verificacion: "Retorno de HTTP 201 Created y confirmación de la existencia del archivo en el directorio de subidas."
+        verification: "Return of HTTP 201 Created and confirmation that the file exists in the uploads directory."
     },
     4: {
-        objetivo: "Validación de las restricciones de seguridad por location que bloquean métodos no autorizados.",
-        comando: `curl -i -s -X POST -d "test body" \\
+        objective: "Validate per-location security restrictions that block unauthorized methods.",
+        command: `curl -i -s -X POST -d "test body" \\
                         http://localhost:8080/`,
-        verificacion: "Retorno de HTTP 405 Method Not Allowed."
+        verification: "Return of HTTP 405 Method Not Allowed."
     },
     5: {
-        objetivo: "Prueba de eliminación de recursos específicos almacenados en el servidor.",
-        comando: "curl -i -s -X DELETE http://localhost:8080/uploads/uploaded_0.bin",
-        verificacion: "Retorno de HTTP 204 No Content tras la eliminación exitosa."
+        objective: "Test deletion of specific resources stored on the server.",
+        command: "curl -i -s -X DELETE http://localhost:8080/uploads/uploaded_0.bin",
+        verification: "Return of HTTP 204 No Content after successful deletion."
     },
     6: {
-        objetivo: "Verificación del procesamiento de scripts externos (Python) sin bloquear el bucle principal del servidor.",
-        comando: "curl -i -s http://localhost:8080/cgi-bin/test.py",
-        verificacion: "Retorno de HTTP 200 OK y ejecución correcta del script."
+        objective: "Verify external script processing (Python) without blocking the server main loop.",
+        command: "curl -i -s http://localhost:8080/cgi-bin/test.py",
+        verification: "Return of HTTP 200 OK and correct script execution."
     },
     7: {
-        objetivo: "Comprobación de que el servidor rechaza cuerpos de petición que exceden el límite configurado (1MB).",
-        comando: `dd if=/dev/urandom of=bigfile.bin bs=1M count=2 && \\
+        objective: "Check that the server rejects request bodies exceeding the configured limit (1MB).",
+        command: `dd if=/dev/urandom of=bigfile.bin bs=1M count=2 && \\
                     curl -i -s -X POST -T bigfile.bin http://localhost:8080/uploads/`,
-        verificacion: "Retorno inmediato de HTTP 413 Payload Too Large."
+        verification: "Immediate return of HTTP 413 Payload Too Large."
     },
     8: {
-        objetivo: "Validación del enrutamiento basado en la cabecera Host para manejar múltiples servidores en el mismo puerto.",
-        comando: `curl -i -s -H "Host: localhost" \\
+        objective: "Validate Host header based routing to handle multiple servers on the same port.",
+        command: `curl -i -s -H "Host: localhost" \\
                 http://localhost:8080/`,
-        verificacion: "Retorno de HTTP 200 OK al coincidir el header con el server_name configurado."
+        verification: "Return of HTTP 200 OK when the header matches the configured server_name."
     },
     9: {
-        objetivo: "Comprobación del mecanismo de redirección permanente definido en el archivo de configuración.",
-        comando: "curl -i -L -s http://localhost:8080/old/",
-        verificacion: "Retorno de HTTP 301 con cabecera Location: / y redirección automática."
+        objective: "Check the permanent redirect mechanism defined in the configuration file.",
+        command: "curl -i -L -s http://localhost:8080/old/",
+        verification: "Return of HTTP 301 with Location: / header and automatic redirect."
     },
     10: {
-        objetivo: "Verificación de la persistencia de la conexión TCP para procesar múltiples peticiones en un solo ciclo.",
-        comando: `(echo -ne "GET / HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: keep-alive\\r\\n\\r\\nGET / HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n"; sleep 1) | nc localhost 8080`,
-        verificacion: "El servidor procesa ambas peticiones antes de cerrar el socket."
+        objective: "Verify TCP connection persistence to process multiple requests in a single cycle.",
+        command: `(echo -ne "GET / HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: keep-alive\\r\\n\\r\\nGET / HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n"; sleep 1) | nc localhost 8080`,
+        verification: "The server processes both requests before closing the socket."
     },
     11: {
-        objetivo: "Prueba de subida de archivos reales utilizando el formato estándar de formularios web (multipart).",
-        comando: `curl -i -s -F "file=@README.md" \\
+        objective: "Test real file upload using standard web form multipart format.",
+        command: `curl -i -s -F "file=@README.md" \\
                 http://localhost:8080/uploads/`,
-        verificacion: "Retorno de HTTP 201 Created y almacenamiento íntegro del archivo."
+        verification: "Return of HTTP 201 Created and full storage of the file."
     },
     12: {
-        objetivo: "Validación de la generación automática de un listado de archivos HTML cuando no hay un index presente.",
-        comando: "curl -i -s http://localhost:8080/uploads/",
-        verificacion: "Retorno de HTML que contiene enlaces (<a href...) a los archivos del directorio."
+        objective: "Validate automatic generation of an HTML file listing when no index is present.",
+        command: "curl -i -s http://localhost:8080/uploads/",
+        verification: "Return of HTML containing links (<a href...) to files in the directory."
     },
     13: {
-        objetivo: "Comprobación de la robustez del servidor ante archivos de configuración corruptos o inválidos.",
-        comando: "./webserv conf/test_invalid.conf",
-        verificacion: "Impresión de mensaje de error descriptivo y salida controlada sin segfaults."
+        objective: "Check server robustness against corrupt or invalid configuration files.",
+        command: "./webserv conf/test_invalid.conf",
+        verification: "Print a descriptive error message and exit cleanly without segfaults."
     },
     14: {
-        objetivo: "Verificación de que el servidor transfiere correctamente los datos del cuerpo POST al script CGI.",
-        comando: `curl -i -s -X POST -d "param1=value1" \\
+        objective: "Verify that the server passes POST body data correctly to the CGI script.",
+        command: `curl -i -s -X POST -d "param1=value1" \\
                     http://localhost:8080/cgi-bin/test.py`,
-        verificacion: "El script recibe y procesa los parámetros vía STDIN."
+        verification: "The script receives and processes parameters via STDIN."
     },
     15: {
-        objetivo: "Prueba de estabilidad y concurrencia para asegurar que el servidor soporta carga masiva.",
-        comando: "siege -c 50 -r 10 -b http://localhost:8080/",
-        verificacion: "500+ transacciones exitosas con 0% de tasa de fallo."
+        objective: "Stress stability and concurrency to ensure the server supports heavy load.",
+        command: "siege -c 50 -r 10 -b http://localhost:8080/",
+        verification: "500+ successful transactions with 0% failure rate."
     },
     16: {
-        objetivo: "Comprobación del ciclo de vida de una sesión: emisión y reconocimiento de cookies.",
-        comando: `COOKIE=$(curl -i -s http://localhost:8080/ | grep "Set-Cookie" | awk '{print $2}') && \\
+        objective: "Check session lifecycle: cookie issuance and recognition.",
+        command: `COOKIE=$(curl -i -s http://localhost:8080/ | grep "Set-Cookie" | awk '{print $2}') && \\
                     curl -i -s -b "$COOKIE" http://localhost:8080/`,
-        verificacion: "Persistencia del session_id entre peticiones consecutivas."
+        verification: "Session_id persists between consecutive requests."
     },
     17: {
-        objetivo: "Validación del bloqueo de acceso a rutas restringidas o no configuradas.",
-        comando: "curl -i -s http://localhost:8080/restricted/",
-        verificacion: "Retorno de HTTP 403 Forbidden o 404 según la política de seguridad."
+        objective: "Validate blocking access to restricted or unconfigured routes.",
+        command: "curl -i -s http://localhost:8080/restricted/",
+        verification: "Return of HTTP 403 Forbidden or 404 depending on security policy."
     }
 };
 
@@ -98,24 +98,18 @@ function openModal(id) {
     const test = tests.find(t => t.id === id);
     const info = testsInfo[id];
     if (!test || !info) return;
-
-    // 1. Título básico
     document.getElementById('modal-title').textContent = `Test #${id}: ${test.title}`;
     
-    // 2. Limpiar el contenedor anterior
     const container = document.getElementById('modal-desc');
     container.innerHTML = '';
 
-    // 3. Usar el Template
     const template = document.getElementById('modal-template');
     const clone = template.content.cloneNode(true);
 
-    // 4. Inyectar los datos en el clon
-    clone.querySelector('.modal-obj-text').textContent = info.objetivo;
-    clone.querySelector('.modal-code-text').textContent = info.comando;
-    clone.querySelector('.modal-check-text').textContent = info.verificacion;
+    clone.querySelector('.modal-obj-text').textContent = info.objective;
+    clone.querySelector('.modal-code-text').textContent = info.command;
+    clone.querySelector('.modal-check-text').textContent = info.verification;
 
-    // 5. Añadir el clon al modal y mostrar
     container.appendChild(clone);
     document.getElementById('modal-overlay').style.display = 'flex';
 }
