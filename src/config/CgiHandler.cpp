@@ -72,6 +72,10 @@ void CgiHandler::executeChild(const std::string &executablePath, const std::stri
 	dup2(_pipeOut[1], STDOUT_FILENO);
 	close(_pipeIn[0]);
 	close(_pipeOut[1]);
+
+	for (int i = 3; i < 1024; ++i)
+		close(i);
+
 	std::string scriptFile = scriptPath;
 	size_t slash = scriptFile.find_last_of('/');
 	if (slash != std::string::npos)
