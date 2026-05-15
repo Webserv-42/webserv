@@ -29,7 +29,7 @@ const testsInfo = {
     },
     6: {
         objective: "Verify external script processing (Python) without blocking the server main loop.",
-        command: "curl -i -s http://localhost:8080/cgi-bin/test.py",
+        command: "curl -i -s http://localhost:8080/cgi-bin/tests/test.py",
         verification: "Return of HTTP 200 OK and correct script execution."
     },
     7: {
@@ -73,7 +73,7 @@ const testsInfo = {
     14: {
         objective: "Verify that the server passes POST body data correctly to the CGI script.",
         command: `curl -i -s -X POST -d "param1=value1" \\
-                    http://localhost:8080/cgi-bin/test.py`,
+                    http://localhost:8080/cgi-bin/tests/test.py`,
         verification: "The script receives and processes parameters via STDIN."
     },
     15: {

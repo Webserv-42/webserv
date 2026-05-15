@@ -13,7 +13,7 @@ const tests = [
   {id:3,  title:'POST upload /uploads/',       desc:'Uploads a file, returns 201 Created.',                         cmd:'POST /uploads/',               fn: ()=>fetchLocal('/uploads/',{method:'POST',headers:{'Content-Type':'text/plain'},body:'test body'})},
   {id:4,  title:'POST blocked at root',        desc:'Method not allowed on /, returns 405.',                        cmd:'POST /',                       fn: ()=>fetchLocal('/',{method:'POST',body:'test'})},
   {id:5,  title:'DELETE file',                 desc:'Deletes resource, returns 204 No Content.',                    cmd:'DELETE last upload',           fn: ()=>fetchLocal(lastUploadPath,{method:'DELETE'})},
-  {id:6,  title:'CGI Python',                  desc:'Executes .py script without blocking, returns 200.',           cmd:'GET /cgi-bin/test.py',         fn: ()=>fetchLocal('/cgi-bin/test.py')},
+  {id:6,  title:'CGI Python',                  desc:'Executes .py script without blocking, returns 200.',           cmd:'GET /cgi-bin/tests/test.py',         fn: ()=>fetchLocal('/cgi-bin/tests/test.py')},
   {id:7,  title:'Body limit — 413',            desc:'Body > 1MB, returns 413 Payload Too Large.',                    cmd:'POST /uploads/ (2MB)',         fn: ()=>{
     const payload = new Uint8Array(1100000);
     return fetchLocal('/uploads/',{
@@ -27,8 +27,8 @@ const tests = [
   {id:10, title:'Keep-Alive',                  desc:'Connection stays open between requests.',                      cmd:'Connection: keep-alive',       fn: ()=>fetchLocal('/',{headers:{'Connection':'keep-alive'}})},
   {id:11, title:'POST multipart/form-data',    desc:'Form upload returns 201 Created.',                              cmd:'POST /uploads/ (form-data)',   fn: ()=>{const f=new FormData();f.append('file',new Blob(['hello']),['test.md']);return fetchLocal('/uploads/',{method:'POST',body:f})}},
   {id:12, title:'Directory autoindex',         desc:'HTML listing of the /uploads/ directory.',                     cmd:'GET /uploads/',                fn: ()=>fetchLocal('/uploads/')},
-  {id:13, title:'CGI info (Python)',           desc:'Executes .py script and returns server info.',                  cmd:'GET /cgi-bin/info.py',         fn: ()=>fetchLocal('/cgi-bin/info.py')},
-  {id:14, title:'CGI POST with parameters',    desc:'CGI script receives POST body correctly.',                      cmd:'POST /cgi-bin/test.py',        fn: ()=>fetchLocal('/cgi-bin/test.py',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'param1=value1&param2=value2'})},
+  {id:13, title:'CGI info (Python)',           desc:'Executes .py script and returns server info.',                  cmd:'GET /cgi-bin/tests/info.py',         fn: ()=>fetchLocal('/cgi-bin/tests/info.py')},
+  {id:14, title:'CGI POST with parameters',    desc:'CGI script receives POST body correctly.',                      cmd:'POST /cgi-bin/tests/test.py',        fn: ()=>fetchLocal('/cgi-bin/tests/test.py',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'param1=value1&param2=value2'})},
   {id:15, title:'Basic stress test',           desc:'10 concurrent requests, all should respond.',                  cmd:'10x GET / concurrent',         fn: ()=>Promise.all(Array.from({length:10},()=>fetchLocal('/')))},
   {id:16, title:'Cookies and sessions',        desc:'Server sets a session cookie on first request.',               cmd:'GET / (check session_id)',     fn: ()=>fetchLocal('/')},
   {id:17, title:'403 restricted path',         desc:'Restricted path returns 403 or 404.',                           cmd:'GET /restricted/',             fn: ()=>fetchLocal('/restricted/')},
@@ -158,7 +158,7 @@ function setUserName() {
 
 function logout() {
   localStorage.removeItem('webserv_username');
-    fetch('/cgi-bin/logout.py', {
+    fetch('/cgi-bin/auth/logout.py', {
         method: 'POST',
         credentials: 'include'
     })
