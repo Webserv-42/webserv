@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 11:17:30 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/05 17:18:12 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/15 12:32:56 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,39 +70,6 @@ void ConfigParser::applyServerErrorPages(ServerConfig& server)
 		{
 			if (server.locations[i].errorPages.find(it->first) == server.locations[i].errorPages.end())
 				server.locations[i].errorPages[it->first] = it->second;
-		}
-	}
-}
-
-/*
-    printSummary:
-        1. print a summary of servers and locations
-*/
-void ConfigParser::printSummary() const
-{
-	for (size_t i = 0; i < _servers.size(); i++)
-	{
-		std::cout << "  Server " << i << ": " << _servers[i].host
-				  << ":" << _servers[i].port
-				  << " (name=" << _servers[i].serverName
-				  << ", max_body=" << _servers[i].clientMaxBodySize
-				  << ")" << std::endl;
-		for (size_t j = 0; j < _servers[i].locations.size(); j++)
-		{
-			const LocationConfig& loc = _servers[i].locations[j];
-			std::cout << "    Location " << loc.path
-					  << " -> root=" << loc.root;
-			if (!loc.index.empty())
-				std::cout << ", index=" << loc.index;
-			if (!loc.cgiExtension.empty())
-				std::cout << ", cgi=" << loc.cgiExtension;
-			std::cout << ", methods=[";
-			for (size_t k = 0; k < loc.allowedMethods.size(); k++)
-			{
-				if (k > 0) std::cout << " ";
-				std::cout << loc.allowedMethods[k];
-			}
-			std::cout << "]" << std::endl;
 		}
 	}
 }
