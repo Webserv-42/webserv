@@ -47,7 +47,7 @@ def main():
     users = load_users()
 
     if username in users and users[username] == password:
-        respond_json("200 OK", {"ok": True, "redirect": "/cgi-bin/dashboard.py"})
+        respond_json("200 OK", {"ok": True, "redirect": "/cgi-bin/app/dashboard.py"})
         return
 
     respond_json("401 Unauthorized", {"ok": False, "error": "Usuario o contraseña incorrectos"})

@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 14:00:48 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/03 16:56:52 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/14 18:54:05 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,13 @@
 #include "HttpRequest.hpp"
 #include <iostream>
 #include <string>
-/*
-    Aqui recibimos argumentos, isntanciamos los modulos principales y conectarlos.
-    No debe tener logica de red ni de parseo directa
-*/
 
 /*
     main:
-        1. Determinar el archivo de configuracion por defecto
-        2. Instancia y ejecutar el modulo de configuracion (ConfigParser)
-        3. Instancia el modulo de Core/redes (Server) y pasarle la configuracion
-        4.Iniciar el servidor (El loop comienza ahi)
+        1. Determine the default configuration file
+        2. Instantiate and run the configuration module (ConfigParser)
+        3. Instantiate the core/network module (Server) and pass the config
+        4. Start the server (the loop begins there)
 */
 
 int main(int argc, char **argv)
@@ -34,37 +30,35 @@ int main(int argc, char **argv)
 	srand(time(NULL));
     std::string configFile = "conf/default.conf";
 
-    if (argc == 2) {
+    if (argc == 2)
         configFile = argv[1];
-    } else if (argc > 2) {
-        std::cerr << "Uso: ./webserv [archivo_de_configuracion]" << std::endl;
-        return 1;
+    else if (argc > 2) 
+    {
+        std::cerr << "Usage: ./webserv [config_file]" << std::endl;
+        return (1);
     }
-
     ConfigParser parser;
-    if (!parser.parse(configFile)) {
-        std::cerr << "Error crítico: No se pudo parsear " << configFile << std::endl;
-        return 1;
+    if (!parser.parse(configFile)) 
+    {
+        std::cerr << "Critical error: could not parse " << configFile << std::endl;
+        return (1);
     }
 
     Server webserv;
 
     try
     {
-        // 🔹 1. pasar configs
         webserv.init(parser.getServers());
 
-        // 🔥 2. CREAR SOCKETS (LO QUE FALTABA)
         webserv.initSockets();
 
-        // 🔥 3. ARRANCAR CORE
         webserv.run();
 
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Excepción fatal en el servidor: " << e.what() << std::endl;
-        return 1;
+        std::cerr << "Fatal server exception: " << e.what() << std::endl;
+        return (1);
     }
-    return 0;
+    return (0);
 }

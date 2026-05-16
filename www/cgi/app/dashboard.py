@@ -25,7 +25,7 @@ def respond_redirect(location, message):
 
 def respond_dashboard_file():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    dashboard_path = os.path.join(script_dir, "..", "dashboard", "index.html")
+    dashboard_path = os.path.join(script_dir, "..", "..", "dashboard", "index.html")
     try:
         with open(dashboard_path, "r", encoding="utf-8") as handle:
             html = handle.read()

@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/03 20:25:00 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/05 17:18:02 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/15 12:32:46 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,8 +94,6 @@ bool ConfigParser::parse(const std::string& filename)
                     {
                         initLocationDefaults(currentLocation, tokens[1]);
                         state = STATE_LOCATION;
-                        std::cout << "[CONFIG]   Location opened: "
-                                  << currentLocation.path << std::endl;
                     }
                     else
                     {
@@ -122,8 +120,6 @@ bool ConfigParser::parse(const std::string& filename)
             {
                 currentServer.locations.push_back(currentLocation);
                 state = STATE_SERVER;
-                std::cout << "[CONFIG]   Location closed: " << currentLocation.path
-                          << " (root=" << currentLocation.root << ")" << std::endl;
             }
             else
             {
@@ -146,7 +142,5 @@ bool ConfigParser::parse(const std::string& filename)
         std::cerr << "[CONFIG ERROR] No server defined in " << filename << std::endl;
         return (false);
     }
-    printSummary();
-
     return (true);
 }

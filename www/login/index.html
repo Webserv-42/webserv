@@ -98,7 +98,7 @@
             function submitLogin() {
                 const body = "username=" + encodeURIComponent(usernameInput.value)
                            + "&password=" + encodeURIComponent(passwordInput.value);
-                fetch("/cgi-bin/login.py", {
+                fetch("/cgi-bin/auth/login.py", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: body

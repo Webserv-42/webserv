@@ -6,7 +6,7 @@
 /*   By: gafreire <gafreire@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/31 13:58:57 by gafreire          #+#    #+#             */
-/*   Updated: 2026/05/05 17:42:00 by gafreire         ###   ########.fr       */
+/*   Updated: 2026/05/15 12:33:10 by gafreire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ class ConfigParser
 		void initServerDefaults(ServerConfig& server);
 		void initLocationDefaults(LocationConfig& location, const std::string& path);
 		void applyServerErrorPages(ServerConfig& server);
-		void printSummary() const;
 		bool parseServerDirective(const std::vector<std::string>& tokens,
 									ServerConfig& server);
 		bool parseLocationDirective(const std::vector<std::string>& tokens,
