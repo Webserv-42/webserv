@@ -88,7 +88,7 @@
         submitBtn.disabled = true;
         submitBtn.textContent = "Registrando...";
 
-        fetch("/cgi-bin/register.py", {
+        fetch("/cgi-bin/auth/register.py", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: body
