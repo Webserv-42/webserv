@@ -2,7 +2,6 @@
 import sys
 
 def main():
-    # Expira la cookie poniendo una fecha en el pasado
     sys.stdout.write("Status: 302 Found\r\n")
     sys.stdout.write("Location: /login/index.html\r\n")
     sys.stdout.write(
