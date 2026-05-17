@@ -24,8 +24,8 @@ SOURCES         =  src/main.cpp \
 
 OBJECTS         = $(SOURCES:.cpp=.o)
 
-CC              = c++
-CFLAGS          = -Wall -Wextra -Werror -std=c++98 -Iincludes
+CXX              = c++
+CXXFLAGS          = -Wall -Wextra -Werror -std=c++98 -Iincludes
 RM              = rm -rf
 
 GREEN           = \033[1;32m
@@ -35,12 +35,12 @@ all: $(NAME)
 
 $(NAME): $(OBJECTS)
 	@echo "$(CYAN)Building $(NAME)...$(RESET)"
-	@$(CC) $(CFLAGS) $(OBJECTS) -o $(NAME)
+	@$(CXX) $(CXXFLAGS) $(OBJECTS) -o $(NAME)
 	@echo "$(GREEN)$(NAME) built successfully!$(RESET)"
 
 %.o: %.cpp
 	@echo "$(YELLOW)Compiling $<...$(RESET)"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	@echo "$(RED)Cleaning object files...$(RESET)"
