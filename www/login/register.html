@@ -11,7 +11,7 @@
 
     <div id="toast">
       <span class="toast-icon">✕</span>
-      <span id="toast-text">Error en el registro</span>
+      <span id="toast-text">Registration failed</span>
     </div>
 
     <div class="register-panel">
@@ -77,7 +77,7 @@
         const confirm  = document.getElementById("reg-confirm").value.trim();
 
         if (password !== confirm) {
-          showToast("Las contraseñas no coinciden", false);
+          showToast("Passwords do not match", false);
           return;
         }
 
@@ -96,18 +96,18 @@
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.ok) {
-            showToast("¡Registro exitoso! Redirigiendo al login...", true);
+            showToast("Registration successful! Redirecting to login...", true);
             setTimeout(function() {
               window.location.href = "/login/index.html";
             }, 2000);
           } else {
-            showToast(data.error || "Error en el registro", false);
+            showToast(data.error || "Registration failed", false);
             submitBtn.disabled = false;
             submitBtn.textContent = "Submit";
           }
         })
         .catch(function() {
-          showToast("Error de conexión con el servidor", false);
+          showToast("Server connection error", false);
           submitBtn.disabled = false;
           submitBtn.textContent = "Submit";
         });

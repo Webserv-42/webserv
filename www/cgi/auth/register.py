@@ -51,23 +51,23 @@ def main():
     confirm  = data.get("confirm",  [""])[0].strip()
 
     if not username or not password:
-        respond_json("400 Bad Request", {"ok": False, "error": "Usuario y contraseña son obligatorios"})
+        respond_json("400 Bad Request", {"ok": False, "error": "Username and password are required"})
         return
 
     if password != confirm:
-        respond_json("400 Bad Request", {"ok": False, "error": "Las contraseñas no coinciden"})
+        respond_json("400 Bad Request", {"ok": False, "error": "Passwords do not match"})
         return
 
     users = load_users()
 
     if username in users:
-        respond_json("409 Conflict", {"ok": False, "error": "El usuario '{}' ya existe".format(username)})
+        respond_json("409 Conflict", {"ok": False, "error": "User '{}' already exists".format(username)})
         return
 
     users[username] = password
     save_users(users)
 
-    respond_json("200 OK", {"ok": True, "message": "Registro completado. ¡Ya puedes iniciar sesión!"})
+    respond_json("200 OK", {"ok": True, "message": "Registration completed. You can now sign in."})
 
 
 if __name__ == "__main__":
