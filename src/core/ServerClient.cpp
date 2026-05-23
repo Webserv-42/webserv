@@ -224,6 +224,7 @@ void Server::ProcessRequest(Client& c)
     int cgiPipeFd = -1;
     int cgiWriteFd = -1;
     c.response = _httpHandler.handleRequest(req, *config, &cgiPipeFd, &cgiWriteFd);
+    std::cout << "[DEBUG] Received " << req.getMethod() << " request for " << req.getUri() << std::endl;
     c.bytesSend = 0;
     if (cgiPipeFd != -1)
     {
@@ -278,6 +279,7 @@ void Server::sendResponse(Client& c)
         c.lastActivity = time(NULL);
     if (c.bytesSend >= c.response.size())
     {
+        std::cout << "[INFO] Response sent to socket " << c.fd << std::endl;
         setPollEvents(c.fd, POLLIN);
         if (c.keepAlive)
         {
@@ -354,4 +356,5 @@ void Server::removeClient(int fd)
     close(fd);
     _clients.erase(fd);
     removePollFd(fd);
+    std::cout << "[INFO] Connection closed for socket " << fd << std::endl;
 }

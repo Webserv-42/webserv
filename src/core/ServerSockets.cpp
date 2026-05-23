@@ -56,6 +56,7 @@ void Server::acceptClient(int serverFd)
     client.serverFd = serverFd;
     client.config = _socketToConfigs[serverFd][0];
     _clients[client_fd] = client;
+    std::cout << "\n[INFO] New connection accepted on socket " << client_fd << std::endl;
 }
 
 /*
