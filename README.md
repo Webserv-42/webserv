@@ -94,6 +94,77 @@ poll() returns an event
                                             └─ DONE
 ```
 
+### Server Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph INIT["Startup"]
+        A(["main.cpp"]) -->|"parse config file"| B["ConfigParser"]
+        B -->|"vector<ServerConfig>"| C["Server::init()"]
+        C -->|"socket / bind / listen"| D["Server::initSockets()"]
+    end
+
+    subgraph LOOP["Event Loop — poll()"]
+        D --> E{"poll() — wait for events"}
+        E -->|"timeout 5s"| F["checkTimeouts()\nclose idle clients >30s"]
+        F --> E
+
+        E -->|"POLLIN on server socket"| G["acceptClient()\nnew fd → _clients map"]
+        G --> E
+
+        E -->|"POLLIN on client fd"| H["handleClient()\nReadFromClient()"]
+        H -->|"complete request"| I["ProcessRequest()"]
+
+        E -->|"POLLOUT on client fd"| J["sendResponse()\nwrite() partial → bytesSent"]
+        J --> E
+    end
+
+    subgraph HTTP["HTTP Layer — HttpHandler"]
+        I -->|"raw bytes"| K["HttpRequest::parse()\nmethod · uri · headers · body"]
+        K -->|"matchLocation()"| L{"Route in\nLocationConfig?"}
+        L -->|"redirect 301/302"| M["buildRedirectResponse()"]
+        L -->|"method not allowed"| N["405 Method Not Allowed"]
+        L -->|"GET"| O["handleGet()"]
+        L -->|"POST"| P["handlePost()"]
+        L -->|"DELETE"| Q["handleDelete()"]
+    end
+
+    subgraph STATIC["Static Resources"]
+        O -->|"file exists"| R["serveStaticFile()\nMIME type + Content-Length"]
+        O -->|"autoindex=on"| S["generateDirectoryListing()"]
+        O -->|"file not found"| T["buildErrorResponse() 404"]
+        P -->|"upload_enable=on"| U["saveUploadedFile()"]
+        Q --> V["deleteFile()"]
+    end
+
+    subgraph CGI["CGI — fork / execve"]
+        O -->|".py/.sh extension"| W["serveCgiIfMatch()"]
+        P -->|".py/.sh extension"| W
+        W --> X["CgiHandler::executeCgi()"]
+        X -->|"pipe() + fork()"| Y["child process:\nexecve(cgiPath, script)"]
+        Y -->|"stdout → pipeOut[1]"| Z["pipeOut[0] registered\nin _cgiPipeToClient"]
+        Z --> E
+        E -->|"POLLIN on cgi pipe"| AA["handleCgiResponse()\naccumulate output in c.response"]
+        AA -->|"EOF on pipe"| AB["assemble HTTP/1.1 + headers\n→ SENDING state"]
+        AB --> J
+        X -->|"stdin → pipeIn[0]"| AC["handleCgiWrite()\nsend POST body to CGI"]
+    end
+
+    M --> J
+    N --> J
+    R --> J
+    S --> J
+    T --> J
+    U --> J
+    V --> J
+
+    style INIT fill:#1e3a5f,color:#e0e0e0,stroke:#4a90d9
+    style LOOP fill:#1a3a2a,color:#e0e0e0,stroke:#4caf50
+    style HTTP fill:#3a2a1e,color:#e0e0e0,stroke:#ff9800
+    style STATIC fill:#2a1e3a,color:#e0e0e0,stroke:#9c27b0
+    style CGI fill:#3a1e1e,color:#e0e0e0,stroke:#f44336
+```
+
 ### Project File Structure
 
 ```
