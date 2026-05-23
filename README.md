@@ -436,7 +436,7 @@ server {
 
 ### [Full Technical Documentation & Knowledge Base](https://www.notion.so/Webserv-3336a32e0f34806a9018eeb32598a1eb?source=copy_link)
 
-*Covers: Architecture · I/O Multiplexing · Config Parser · Client State Machine · HTTP Handler · CGI Lifecycle · Session Management · Glossary · Evaluation FAQ*
+*Covers: Architecture · I/O Multiplexing · Config Parser · Client State Machine · HTTP Handler · CGI Lifecycle · Session Management*
 
 </div>
 
